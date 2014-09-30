@@ -1,0 +1,33 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin:'application'
+
+sourceCompatibility = 1.7
+
+mainClassName = 'cwru.jjs228.pr03.Main'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.antlr:antlr4:4.3'
+    compile 'commons-cli:commons-cli:1.2'
+
+    testCompile 'junit:junit:4.+'
+    testCompile 'org.hamcrest:hamcrest-all:1.3'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full" // default is "short"
+    }
+}
+
