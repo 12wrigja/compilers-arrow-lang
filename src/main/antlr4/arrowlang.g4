@@ -1,190 +1,212 @@
 grammar arrowlang;
 
-Start : Stmts
+start : stmts
       ;
 
-Stmts : TStmt Stmts
+stmts : tStmt stmts
       | e
       ;
 
 
-TStmt : Stmt
-      | FuncDefStmt
+tStmt : stmt
+      | funcDefStmt
       ;
 
-Stmt : CallStmt
-     | DeclStmt
-     | AssignStmt
-     | IfStmt
-     | WhileStmt
-     | ForStmt
+stmt : callStmt
+     | declStmt
+     | assignStmt
+     | ifStmt
+     | whileStmt
+     | forStmt
      ;
 
-Block : "{" BlockStmts ReturnStmt "}"
-      | "{" BlockStmts "}"
-      | "{" ReturnStmt "}"
+block : LBRACKET blockStmts returnStmt RBRACKET
+      | LBRACKET blockStmts RBRACKET
+      | LBRACKET returnStmt RBRACKET
       ;
 
-BlockStmts : BlockStmt BlockStmts
+blockStmts : blockStmt blockStmts
            | e
            ;
 
-BlockStmt : Stmt
-          | LoopControlStmt
+blockStmt : stmt
+          | loopControlStmt
           ;
 
-Expr : ArithExpr ;
+expr : arithExpr ;
 
-FuncDefStmt : FUNC NAME "(" ParamDecls ")" TypeSpec Block
-            | FUNC NAME "(" ParamDecls ")" Block
-            | FUNC NAME "(" ")" TypeSpec Block
-            | FUNC NAME "(" ")" Block
+funcDefStmt : FUNC NAME LPAREN paramDecls RPAREN typeSpec block
+            | FUNC NAME LPAREN paramDecls RPAREN block
+            | FUNC NAME LPAREN RPAREN typeSpec block
+            | FUNC NAME LPAREN RPAREN block
             ;
 
-ParamDecls : NAME TypeSpec ParamDeclsRem
+paramDecls : NAME typeSpec paramDeclsRem
            ;
 
-ParamDeclsRem : "," NAME TypeSpec ParamDeclsRem
+paramDeclsRem : COMMA NAME typeSpec paramDeclsRem
             | e
             ;
 
-BooleanExpr : AndExpr BooleanExprRem
+booleanExpr : andExpr booleanExprRem
             ;
 
-BooleanExprRem : "|" "|" AndExpr BooleanExprRem
+booleanExprRem : OR OR andExpr booleanExprRem
              | e
              ;
 
-AndExpr : NotExpr AndExprRem
+andExpr : notExpr andExprRem
         ;
 
-AndExprRem : "&" "&" NotExpr AndExprRem
+andExprRem : AND AND notExpr andExprRem
          | e
          ;
 
-NotExpr : "!" BooleanTerm
-        | BooleanTerm
+notExpr : EXCL booleanTerm
+        | booleanTerm
         ;
 
-BooleanTerm : CmpExpr
-            | BooleanConstant
-            | "(" BooleanExpr ")"
+booleanTerm : cmpExpr
+            | booleanConstant
+            | LPAREN booleanExpr RPAREN
             ;
 
-CmpExpr : ArithExpr CmpOp ArithExpr ;
+cmpExpr : arithExpr cmpOp arithExpr ;
 
-CmpOp : "<"
-      | "<" "="
-      | "=" "="
-      | "!" "="
-      | ">" "="
-      | ">"
+cmpOp : LT
+      | LT EQ
+      | EQ EQ
+      | EXCL EQ
+      | GT EQ
+      | GT
       ;
 
-BooleanConstant : true
-                | false
+booleanConstant : TRUE
+                | FALSE
                 ;
 
-ArithExpr : MulDiv ArithExprRem
+arithExpr : mulDiv arithExprRem
           ;
 
-ArithExprRem : "+" MulDiv ArithExprRem
-           | "-" MulDiv ArithExprRem
+arithExprRem : PLUS mulDiv arithExprRem
+           | DASH mulDiv arithExprRem
            | e
            ;
 
-MulDiv : Negate MulDivRem
+mulDiv : negate mulDivRem
        ;
 
-MulDivRem : "*" Negate MulDivRem
-        | "/" Negate MulDivRem
-        | "%" Negate MulDivRem
+mulDivRem : MULT negate mulDivRem
+        | DIV negate mulDivRem
+        | MOD negate mulDivRem
         | e
         ;
 
-Negate : "-" Atomic
-       | Atomic
+negate : DASH atomic
+       | atomic
        ;
 
-Atomic : ValueExpr
-       | "(" ArithExpr ")"
+atomic : valueExpr
+       | LPAREN arithExpr RPAREN
        ;
 
-ValueExpr : Constant
-          | SymbolValueExpr
+valueExpr : constant
+          | symbolValueExpr
           ;
 
-Constant : INT_CONST
+constant : INT_CONST
          | FLOAT_CONST
          | STRING_CONST
          ;
 
-SymbolValueExpr : Call
+symbolValueExpr : call
                 | NAME
                 ;
 
-CallStmt : Call ;
+callStmt : call ;
 
-Call : NAME "(" CallParams ")"
-     | NAME "(" ")"
+call : NAME LPAREN callParams RPAREN
+     | NAME LPAREN RPAREN
      ;
 
-CallParams : Expr CallParamsRem
+callParams : expr callParamsRem
            ;
 
-CallParamsRem : "," Expr CallParamsRem
+callParamsRem : COMMA expr callParamsRem
             | e
             ;
 
-DeclStmt : VAR NAME TypeSpec "=" Expr
-         | VAR NAME TypeSpec
-         | VAR NAME "=" Expr
+declStmt : VAR NAME typeSpec EQ expr
+         | VAR NAME typeSpec
+         | VAR NAME EQ expr
          ;
 
-TypeName : NAME ;
+typeName : NAME ;
 
-TypeSpec : TypeName ;
+typeSpec : typeName ;
 
-AssignStmt : NAME "=" Expr ;
+assignStmt : NAME EQ expr ;
 
-IfStmt : IF BooleanExpr Block ElseIfStmt
-       | IF BooleanExpr Block
+ifStmt : IF booleanExpr block elseIfStmt
+       | IF booleanExpr block
        ;
 
-ElseIfStmt : else Block
-           | else IfStmt
+elseIfStmt : ELSE block
+           | ELSE ifStmt
            ;
 
-WhileStmt : while BooleanExpr Block
-          | while Block
+whileStmt : WHILE booleanExpr block
+          | WHILE block
           ;
 
-ForStmt : for DeclStmt ";" BooleanExpr ";" AssignStmt Block
-        | for DeclStmt ";" BooleanExpr ";" Block
-        | for DeclStmt ";" ";" AssignStmt Block
-        | for DeclStmt ";" ";" Block
-        | for ";" BooleanExpr ";" AssignStmt Block
-        | for ";" BooleanExpr ";" Block
-        | for ";" ";" AssignStmt Block
+forStmt : FOR declStmt SMC booleanExpr SMC assignStmt block
+        | FOR declStmt SMC booleanExpr SMC block
+        | FOR declStmt SMC SMC assignStmt block
+        | FOR declStmt SMC SMC block
+        | FOR SMC booleanExpr SMC assignStmt block
+        | FOR SMC booleanExpr SMC block
+        | FOR SMC SMC assignStmt block
         ;
 
-ReturnStmt : return Expr
-           | return
+returnStmt : RETURN expr
+           | RETURN
            ;
 
-LoopControlStmt : continue
-                | break
+loopControlStmt : CONTINUE
+                | BREAK
                 ;
-                
+          
+          
+e : '';
 //Lexer Tokens
 VAR : 'var';
-NAME : ([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|_)*;
+NAME : '((a..z)|(A..Z))((a..z)|(A..Z)|(0..9)|(_))*'; //'([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|_)*'; 
 FUNC : 'func';
 IF : 'if';
 ELSE : 'else';
 FOR : 'for';
 WHILE : 'while';
-CONTINUE : 'continue'
+CONTINUE : 'continue';
 BREAK : 'break';
+RETURN : 'return';
 TRUE : 'true';
 FALSE : 'false';
+LBRACKET : '{';
+RBRACKET : '}';
+LPAREN : '(';
+RPAREN : ')';
+EQ : '=';
+COMMA : ',';
+OR : '|';
+AND : '&';
+EXCL : '!';
+LT : '<';
+GT : '>';
+PLUS : '+';
+DASH : '-';
+MULT : '*';
+DIV  : '/';
+MOD : '%';
+SMC : ';';
+INT_CONST : '[0-9]+';
+FLOAT_CONST : '[0-9]*\\.?[0-9]+((E|e)(\\+|-)?[0-9]+)?';
