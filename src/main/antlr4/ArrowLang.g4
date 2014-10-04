@@ -1,4 +1,4 @@
-grammar arrowlang;
+grammar ArrowLang;
 
 @header{
 	package cwru.jjs228.pr03;
