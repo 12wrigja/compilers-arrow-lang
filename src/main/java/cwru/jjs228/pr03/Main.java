@@ -15,11 +15,11 @@ class Main {
 	public static void main(String[] argv) throws IOException {
 		ANTLRInputStream stream = new ANTLRInputStream(new FileReader(
 				"input.txt"));
-		arrowlangLexer lexer = new arrowlangLexer(stream);
+		ArrowLangLexer lexer = new ArrowLangLexer(stream);
 		lexer.addErrorListener(new ExceptionErrorListener());
-		
+//		printAllTokens(lexer);
 		 CommonTokenStream tokens = new CommonTokenStream(lexer);
-		 arrowlangParser parser = new arrowlangParser(tokens);
+		 ArrowLangParser parser = new ArrowLangParser(tokens);
 		 parser.addErrorListener(new ExceptionErrorListener());
 		 parser.start();
 	}
@@ -29,11 +29,11 @@ class Main {
 		System.exit(1);
 	}
 	
-	private static String getNameForTokenNumber(arrowlangLexer lexer, int number){
+	private static String getNameForTokenNumber(ArrowLangLexer lexer, int number){
 		return lexer.ruleNames[number-1];
 	}
 	
-	private static void printAllTokens(arrowlangLexer lexer){
+	private static void printAllTokens(ArrowLangLexer lexer){
 		List<? extends Token> toks = lexer.getAllTokens();
 		for (Token t : toks) {
 			if (t.getChannel() == 0) {

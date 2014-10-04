@@ -1,15 +1,1 @@
-func fib(x int32) int32 {
-  if x <= 0 {
-    return 0
-  }
-  var prev = 0
-  var cur = 1
-  for var i = 1; i < x; i = i + 1 {
-    var next = cur + prev
-    prev = cur
-    cur = next
-  }
-  return cur
-}
-
-print_int32(fib(10))
+print_int32(0)

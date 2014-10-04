@@ -8,7 +8,7 @@ start : stmts EOF
       ;
 
 stmts : tStmt stmts
-      | e
+      |
       ;
 
 
@@ -30,7 +30,7 @@ block : LBRACKET blockStmts returnStmt RBRACKET
       ;
 
 blockStmts : blockStmt blockStmts
-           | e
+           |
            ;
 
 blockStmt : stmt
@@ -49,21 +49,21 @@ paramDecls : NAME typeSpec paramDeclsRem
            ;
 
 paramDeclsRem : COMMA NAME typeSpec paramDeclsRem
-            | e
+            |
             ;
 
 booleanExpr : andExpr booleanExprRem
             ;
 
 booleanExprRem : OR OR andExpr booleanExprRem
-             | e
+             |
              ;
 
 andExpr : notExpr andExprRem
         ;
 
 andExprRem : AND AND notExpr andExprRem
-         | e
+         |
          ;
 
 notExpr : EXCL booleanTerm
@@ -94,7 +94,7 @@ arithExpr : mulDiv arithExprRem
 
 arithExprRem : PLUS mulDiv arithExprRem
            | DASH mulDiv arithExprRem
-           | e
+           |
            ;
 
 mulDiv : negate mulDivRem
@@ -103,7 +103,7 @@ mulDiv : negate mulDivRem
 mulDivRem : MULT negate mulDivRem
         | DIV negate mulDivRem
         | MOD negate mulDivRem
-        | e
+        |
         ;
 
 negate : DASH atomic
@@ -137,7 +137,7 @@ callParams : expr callParamsRem
            ;
 
 callParamsRem : COMMA expr callParamsRem
-            | e
+            |
             ;
 
 declStmt : VAR NAME typeSpec EQ expr
@@ -179,9 +179,6 @@ returnStmt : RETURN expr
 loopControlStmt : CONTINUE
                 | BREAK
                 ;
-
-e : '';
-
 
 //Lexer Tokens
 VAR : 'var'; 
