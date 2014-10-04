@@ -1,64 +1,39 @@
 package cwru.jjs228.pr03;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.Token;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.UnrecognizedOptionException;
 
 class Main {
 
+	public static void main(String[] argv) throws IOException {
+		ANTLRInputStream stream = new ANTLRInputStream(new FileReader(
+				"input.txt"));
+		arrowlangLexer lexer = new arrowlangLexer(stream);
+		lexer.addErrorListener(new ExceptionErrorListener());
+		List<? extends Token> toks = lexer.getAllTokens();
+		for (Token t : toks) {
+			if (t.getChannel() == 0) {
+				System.out.println(getNameForTokenNumber(lexer, t.getType())+ " " + t.getText());
+			}
+		}
+		// CommonTokenStream tokens = new CommonTokenStream(lexer);
+		// arrowlangParser parser = new arrowlangParser(tokens);
+		// parser.addErrorListener(new ExceptionErrorListener());
+		// parser.start();
+	}
 
-    public static void main(String[] argv) {
-
-        final Option helpOpt = new Option("h", "help", false, "Print this message");
-        final Option exampleArgOpt = new Option("a", "arg-example", true, "Example option which accepts and argument");
-        final Options options = new Options();
-
-        options.addOption(helpOpt);
-        options.addOption(exampleArgOpt);
-
-        String exampleArg = "";
-        String[] args = null;
-
-        try {
-            GnuParser parser = new GnuParser();
-            CommandLine line = parser.parse(options, argv);
-
-            if (line.hasOption(helpOpt.getLongOpt())) {
-                Usage(options);
-            }
-
-            exampleArg = line.getOptionValue(exampleArgOpt.getLongOpt());
-            args = line.getArgs();
-
-        } catch (final MissingOptionException e) {
-            System.err.println(e.getMessage());
-            Usage(options);
-        } catch (final UnrecognizedOptionException e) {
-            System.err.println(e.getMessage());
-            Usage(options);
-        } catch (final ParseException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
-
-        System.out.print("extra args ");
-        for (String arg : args) {
-            System.out.print(arg + " ");
-        }
-        System.out.println();
-        System.out.println("arg-example = " + exampleArg);
-        System.out.println("Put your logic here");
-    }
-
-    public static void Usage(Options options) {
-        new HelpFormatter().printHelp("pr03", options, true);
-        System.exit(1);
-    }
+	public static void Usage(Options options) {
+		new HelpFormatter().printHelp("pr03", options, true);
+		System.exit(1);
+	}
+	
+	private static String getNameForTokenNumber(arrowlangLexer lexer, int number){
+		return lexer.ruleNames[number-1];
+	}
 }
-

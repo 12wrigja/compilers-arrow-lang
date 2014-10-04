@@ -1,6 +1,10 @@
 grammar arrowlang;
 
-start : stmts
+@header{
+	package cwru.jjs228.pr03;
+}
+
+start : stmts EOF
       ;
 
 stmts : tStmt stmts
@@ -175,12 +179,12 @@ returnStmt : RETURN expr
 loopControlStmt : CONTINUE
                 | BREAK
                 ;
-          
-          
+
 e : '';
+
+
 //Lexer Tokens
-VAR : 'var';
-NAME : '((a..z)|(A..Z))((a..z)|(A..Z)|(0..9)|(_))*'; //'([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|_)*'; 
+VAR : 'var'; 
 FUNC : 'func';
 IF : 'if';
 ELSE : 'else';
@@ -208,5 +212,10 @@ MULT : '*';
 DIV  : '/';
 MOD : '%';
 SMC : ';';
-INT_CONST : '[0-9]+';
-FLOAT_CONST : '[0-9]*\\.?[0-9]+((E|e)(\\+|-)?[0-9]+)?';
+NAME : ([a-zA-Z])([a-zA-Z0-9_])*;
+INT_CONST : [0-9]+;
+FLOAT_CONST : [0-9]*[.]?[0-9]+(([e]|[E])([-]|[+])?[0-9]+)?;
+LINE_COMMENT : '//'[^\n]* ->skip;
+STRING_CONST : '"'[\S\t ]*[^\\]'"';
+ML_COMMENT : '/*'[\s\S]*[^\\]'*/' ->skip;
+WHITESPACE : ([\t\n\r]|' ')+ ->channel(HIDDEN);
