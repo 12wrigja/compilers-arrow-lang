@@ -7,6 +7,7 @@ import java.util.List;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
@@ -21,7 +22,10 @@ class Main {
 		 CommonTokenStream tokens = new CommonTokenStream(lexer);
 		 ArrowLangParser parser = new ArrowLangParser(tokens);
 		 parser.addErrorListener(new ExceptionErrorListener());
-		 parser.start();
+		 ParseTree tree = parser.start();
+		 ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
+		 Node ast = visitor.visit(tree);
+		 System.out.println(ast);
 	}
 
 	public static void Usage(Options options) {
