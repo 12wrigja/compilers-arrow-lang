@@ -2,6 +2,7 @@ package cwru.jjs228.pr03;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import cwru.jjs228.pr03.ArrowLangParser.AndExprContext;
 import cwru.jjs228.pr03.ArrowLangParser.AndExprRemContext;
@@ -389,6 +390,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		Node arithExprRem = visit(ctx.arithExprRem());
 		return minimize("ArithExpr", mulDiv,arithExprRem);
 	}
+	
+	@Override
+	public Node visitTerminal(TerminalNode node){
+		Node returnNode = new Node(node.getText(), "If you see this, shit's broke");
+		return (Node)returnNode;
+	}
 
 	private Node minimize(String nodeLabel, Node... childNodes) {
 		Node newNode = new Node(nodeLabel);
@@ -397,12 +404,14 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 				newNode.addkid(n);
 			}
 		}
-		if (newNode.kids.size() == 1) {
+		if (newNode.kids.size() == 1 && ((Node)newNode.kids.get(0)).kids.size() == 1) {
 			// Grab value from node below, set it as the value of this node and
 			// remove the child node.
 			Node child = ((Node) newNode.kids.get(0));
-			newNode.label = child.label;
-			newNode.kids.remove(child);
+			Node child2 = ((Node) child.kids.get(0));
+			
+			newNode.kids.clear();
+			newNode.kids.add(child2);
 		} else if (newNode.kids.size() == 0) {
 			return null;
 		}
