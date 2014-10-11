@@ -26,6 +26,7 @@ class Main {
 		 ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
 		 Node ast = visitor.visit(tree);
 		 System.out.println(ast);
+		 preOrderTraverse(ast);
 	}
 
 	public static void Usage(Options options) {
@@ -43,6 +44,13 @@ class Main {
 			if (t.getChannel() == 0) {
 				System.out.println(getNameForTokenNumber(lexer, t.getType())+ " " + t.getText());
 			}
+		}
+	}
+	
+	private static void preOrderTraverse(Node node){
+		System.out.println(node.kids.size()+":"+node.label+((null!=node.value)?","+node.value:""));
+		for(Node kid : ((Iterable<Node>)node.kids)){
+			preOrderTraverse(kid);
 		}
 	}
 }

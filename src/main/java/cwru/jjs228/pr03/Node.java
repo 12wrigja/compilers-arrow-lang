@@ -13,6 +13,10 @@ public class Node<T> {
 		this.label = "";
 	}
 	
+	public Node(String label){
+		this.label = label;
+	}
+	
 	public Node(T value, String label){
 		this.value = value;
 		this.label = label;
@@ -60,13 +64,27 @@ public class Node<T> {
 	@Override
 	public String toString() {
 		if (kids.size() == 0) {
-			return value.toString();
+			if(value != null){
+				return "("+label+","+value.toString()+")";
+			}else{
+				return "("+label+")";
+			}
 		}
 		StringBuilder sb = new StringBuilder();
 		for (Node kid : kids) {
 			sb.append(" ");
 			sb.append(kid);
 		}
-		return String.format("(%s%s)", value, sb);
+		String nodeString = "";
+		if(label != null && value != null){
+			nodeString = label+":"+value;
+		}else if (label != null){
+			nodeString = label;
+		}else if (value != null){
+			nodeString = value.toString();
+		}else{
+			nodeString = null;
+		}
+		return String.format("(%s%s)", null != value ? value : label, sb);
 	}
 }

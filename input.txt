@@ -1,1 +1,6 @@
-print_int32(0)
+var x = 0
+if x >= 0 {
+  x = 1
+} else {
+  x = 2
+}
