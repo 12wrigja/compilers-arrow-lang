@@ -46,6 +46,9 @@ class Main {
 	}
 	
 	private static void preOrderTraverse(Node node){
+		if(null == node){
+			return;
+		}
 		System.out.println(node.kids.size()+":"+node.label+((null!=node.value)?","+node.value:""));
 		for(Node kid : ((Iterable<Node>)node.kids)){
 			preOrderTraverse(kid);
