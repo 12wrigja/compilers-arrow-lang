@@ -1,0 +1,12 @@
+var x = 1
+var x = 2
+func foo() { return }
+func bar() { return }
+func baz() { return }
+if x == y && (y == z || z == c) {
+    foo()
+} else if (y < z) || (z > x && x != y) {
+    bar()
+} else {
+    baz()
+}

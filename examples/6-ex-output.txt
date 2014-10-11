@@ -1,0 +1,17 @@
+1:Stmts
+3:Decl
+0:Name,x
+1:Type
+0:TypeName,float32
+2:+
+2:*
+0:Int,1
+0:Int,2
+2:/
+2:*
+0:Int,3
+2:+
+1:Negate
+0:Int,1
+0:Int,7
+0:Int,2

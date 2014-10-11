@@ -1,6 +1,1 @@
-var x = 0
-if x >= 0 {
-  x = 1
-} else {
-  x = 2
-}
+var x =  5*j*j + - 3*j + 2*j*i + i + 7

@@ -1,0 +1,15 @@
+1:Stmts
+2:ShortDecl
+0:Name,x
+2:+
+2:*
+0:Float,1
+0:Float,2
+2:/
+2:*
+0:Float,3
+2:+
+1:Negate
+0:Float,1
+0:Float,7
+0:Float,2

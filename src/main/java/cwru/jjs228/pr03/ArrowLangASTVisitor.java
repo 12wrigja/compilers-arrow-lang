@@ -1,8 +1,5 @@
 package cwru.jjs228.pr03;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -100,9 +97,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 
 	@Override
 	public Node visitReturnStmt(ReturnStmtContext ctx) {
-		Node retNode = new Node("Return");
 		Node expr = visit(ctx.expr());
-		return minimize("Return", retNode, expr);
+		return minimize("Return", expr);
 	}
 
 	@Override
@@ -179,18 +175,17 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		Node mult = visit(ctx.MULT());
 		Node div = visit(ctx.DIV());
 		Node mod = visit(ctx.MOD());
-		if (mult != null) {
-			symbol = mult.label;
-		} else if (div != null) {
-			symbol = div.label;
-		} else if (mod != null) {
-			symbol = mod.label;
-		} else {
-			symbol = null;
-		}
 		Node negate = visit(ctx.negate());
 		Node mulDivRem = visit(ctx.mulDivRem());
-		return minimize(symbol, mult, div, mod, negate, mulDivRem);
+		if (mult != null) {
+			return minimize("*",mulDivRem,negate);
+		} else if (div != null) {
+			return minimize("/",mulDivRem,negate);
+		} else if (mod != null) {
+			return minimize("%",mulDivRem,negate);
+		} else {
+			return null;
+		}
 	}
 
 	@Override
@@ -198,8 +193,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		Node name = visit(ctx.NAME());
 		name.label = "Name";
 		Node typeSpec = visit(ctx.typeSpec());
+		Node paramDecl = new Node("ParamDecl");
+		paramDecl.addkid(name);
+		paramDecl.addkid(typeSpec);
 		Node paramDeclsRem = visit(ctx.paramDeclsRem());
-		return minimize("ParamDecls", name, typeSpec, paramDeclsRem);
+		return minimize("ParamDecls", paramDecl, paramDeclsRem);
 	}
 
 	@Override
@@ -285,16 +283,25 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	public Node visitMulDiv(MulDivContext ctx) {
 		Node negate = visit(ctx.negate());
 		Node mulDivRem = visit(ctx.mulDivRem());
-		return minimize(null, negate, mulDivRem);
+		if(mulDivRem == null){
+			return negate;
+		}
+		Node lastChild = mulDivRem;
+		while(lastChild != null && lastChild.kids.size() != 1 && lastChild.kids.size()!= 0){
+			lastChild = (Node)lastChild.kids.get(0);
+		}
+		lastChild.kids.add(0, negate);
+		return mulDivRem;
 	}
 
 	@Override
 	public Node visitForStmt(ForStmtContext ctx) {
 		Node declStmt = visit(ctx.declStmt());
+		declStmt = wrap("DeclExpr",declStmt);
 		Node booleanExpr = visit(ctx.booleanExpr());
 		Node assignmentStmt = visit(ctx.assignStmt());
 		if (assignmentStmt != null) {
-			assignmentStmt.label = "UpdateExpr";
+			assignmentStmt = wrap("UpdateExpr", assignmentStmt);
 		}
 		Node block = visit(ctx.block());
 		return minimize("For", declStmt, booleanExpr, assignmentStmt, block);
@@ -337,7 +344,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	public Node visitSymbolValueExpr(SymbolValueExprContext ctx) {
 		Node call = visit(ctx.call());
 		Node name = visit(ctx.NAME());
-		name.label = "Name";
+		if(name != null){
+			name.label = "Symbol";
+		}
 		return minimize(null, call, name);
 	}
 
@@ -367,6 +376,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	@Override
 	public Node visitParamDeclsRem(ParamDeclsRemContext ctx) {
 		Node name = visit(ctx.NAME());
+		if(name != null){
+			name.label = "Name";
+		}
 		Node typeSpec = visit(ctx.typeSpec());
 		Node paramDeclsRem = visit(ctx.paramDeclsRem());
 		return minimize("ParamDecl", name, typeSpec, paramDeclsRem);
@@ -375,12 +387,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	@Override
 	public Node visitStart(StartContext ctx) {
 		if (ctx.stmts() != null) {
-			Node master = new Node("Stmts");
-			List<Node> allStmts = pullup("Stmts",new Node("Stmts"),visit(ctx.stmts()));
-			for(Node other : allStmts){
-				master.addkid(other);
-			}
-			return master;
+			Node result = visit(ctx.stmts());
+			pullup("Stmts", result);
+			return result;
 		}
 		return null;
 	}
@@ -394,7 +403,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 
 	@Override
 	public Node visitCallStmt(CallStmtContext ctx) {
-		return minimize("Call", visit(ctx.call()));
+		return minimize(null, visit(ctx.call()));
 	}
 
 	@Override
@@ -419,11 +428,29 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		Node mulDiv = visit(ctx.mulDiv());
 		Node arithExprRem = visit(ctx.arithExprRem());
 		if (plus != null) {
-			return minimize("+", mulDiv, arithExprRem);
+			if(arithExprRem == null){
+				return minimize("+", arithExprRem, mulDiv);
+			}else{
+				Node lastOp = arithExprRem;
+				while(lastOp != null && lastOp.kids.size() != 1){
+					lastOp = (Node)lastOp.kids.get(0);
+				}
+				lastOp.kids.add(0, wrap("+",mulDiv));
+				return arithExprRem;
+			}
 		} else if (minus != null) {
-			return minimize("-", mulDiv, arithExprRem);
+			if(arithExprRem == null){
+				return minimize("-", arithExprRem, mulDiv);
+			}else{
+				Node lastOp = arithExprRem;
+				while(lastOp != null && lastOp.kids.size() != 1){
+					lastOp = (Node)lastOp.kids.get(0);
+				}
+				lastOp.kids.add(0, wrap("-",mulDiv));
+				return arithExprRem;
+			}
 		} else {
-			return minimize(null, mulDiv, arithExprRem);
+			return null;
 		}
 
 	}
@@ -444,7 +471,15 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	public Node visitArithExpr(ArithExprContext ctx) {
 		Node mulDiv = visit(ctx.mulDiv());
 		Node arithExprRem = visit(ctx.arithExprRem());
-		return minimize(null, mulDiv, arithExprRem);
+		if(arithExprRem == null){
+			return mulDiv;
+		}
+		Node lastChild = arithExprRem;
+		while(lastChild != null && lastChild.kids.size() != 1){
+			lastChild = (Node)lastChild.kids.get(0);
+		}
+		lastChild.kids.add(0, mulDiv);
+		return arithExprRem;
 	}
 
 	@Override
@@ -475,20 +510,28 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		}
 		if (newNode.kids.size() == 0) {
 			return null;
+		} else if (nodeLabel == null & newNode.kids.size() == 1) {
+			return (Node) newNode.kids.get(0);
 		}
 		return newNode;
 	}
 
-	private List<Node> pullup(String label, Node parentNode, Node currentNode){
-		List otherNodes = new ArrayList<Node>();
-		for(Node kid : ((Iterable<Node>)currentNode.kids)){
-			if(kid.label.equals(label)){
-				 otherNodes.addAll(pullup(label,currentNode,kid));
-			}else{
-				otherNodes.add(kid);
+	private void pullup(String label, Node node) {
+		int index = 0;
+		while (index < node.kids.size()) {
+			Node currentKid = (Node) node.kids.get(index);
+			if (currentKid.label.equals(label)) {
+				for (int j = 0; j < currentKid.kids.size(); j++) {
+					if (j == 0) {
+						node.kids.set(index, currentKid.kids.get(j));
+					} else {
+						node.kids.add(j, currentKid.kids.get(j));
+					}
+				}
+			} else {
+				index++;
 			}
 		}
-		return otherNodes;
 	}
 
 	@Override

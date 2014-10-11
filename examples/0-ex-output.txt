@@ -1,0 +1,5 @@
+1:Stmts
+2:Call
+0:Symbol,print_int32
+1:Params
+0:Int,0

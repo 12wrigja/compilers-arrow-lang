@@ -1,0 +1,17 @@
+2:Stmts
+2:ShortDecl
+0:Name,x
+0:Int,0
+3:If
+1:BooleanExpr
+1:Not
+0:Boolean,false
+1:Block
+2:AssignStmt
+0:Name,x
+0:Int,1
+1:ElseIf
+1:Block
+2:AssignStmt
+0:Name,x
+0:Int,2

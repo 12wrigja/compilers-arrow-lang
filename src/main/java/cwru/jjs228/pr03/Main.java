@@ -15,17 +15,15 @@ class Main {
 
 	public static void main(String[] argv) throws IOException {
 		ANTLRInputStream stream = new ANTLRInputStream(new FileReader(
-				"input.txt"));
+				argv[0]));
 		ArrowLangLexer lexer = new ArrowLangLexer(stream);
 		lexer.addErrorListener(new ExceptionErrorListener());
-//		printAllTokens(lexer);
 		 CommonTokenStream tokens = new CommonTokenStream(lexer);
 		 ArrowLangParser parser = new ArrowLangParser(tokens);
 		 parser.addErrorListener(new ExceptionErrorListener());
 		 ParseTree tree = parser.start();
 		 ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
 		 Node ast = visitor.visit(tree);
-		 System.out.println(ast);
 		 preOrderTraverse(ast);
 	}
 
