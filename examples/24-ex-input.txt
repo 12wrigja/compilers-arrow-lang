@@ -1,0 +1,5 @@
+func f(i int32, j int32, k int32) int32{
+	return 1
+}
+
+print_int32(f(3,2,1))
