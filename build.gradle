@@ -22,7 +22,7 @@ apply plugin: 'me.champeau.gradle.antlr4'
 
 sourceCompatibility = 1.7
 
-mainClassName = 'cwru.jjs228.arrowlang'
+mainClassName = 'cwru.jjs228.pr03.Main'
 
 dependencies {
     compile 'commons-cli:commons-cli:1.2'
