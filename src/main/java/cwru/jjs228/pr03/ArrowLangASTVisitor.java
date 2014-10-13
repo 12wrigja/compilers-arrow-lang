@@ -300,6 +300,13 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a ParamDecls node
+	 * First creates the node for the first
+	 * 	ParamDecl
+	 * Then pulls up all of the subsequent ParamDecls
+	 * 	using the pullup method.
+	 */
 	public Node visitParamDecls(ParamDeclsContext ctx) {
 		Node name = visit(ctx.NAME());
 		name.label = "Name";
@@ -644,6 +651,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a ParamDelcs* node on the parse tree
+	 * Returns a node with a label ParamDecl and children name(if not null),
+	 * 	typeSpec, and paraDeclsRem(if not null)
+	 */
 	public Node visitParamDeclsRem(ParamDeclsRemContext ctx) {
 		Node name = visit(ctx.NAME());
 		if (name != null) {
@@ -852,8 +864,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 
 	/**
 	 * Brings the children of the children of a node up one level This is used
-	 * to convert the string of stmts in the parse tree to a singular stmts in
-	 * the AST
+	 * to convert the string of stmts in the parse tree to a singular stmts and
+	 *  for flattening the tree structure of ParamDecl
+	 *  in the AST
 	 * 
 	 * @param label
 	 * @param node
