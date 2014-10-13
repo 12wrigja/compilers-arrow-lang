@@ -1,12 +1,13 @@
 package cwru.jjs228.pr03;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Scanner;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -79,7 +80,13 @@ class Main {
 		String traversal = preOrderTraverse(ast,"");
 		if(line.hasOption(visualizeASTOption.getLongOpt())){
 			String dotFormat = dotFormat(ast);
-			System.out.println(dotFormat);
+			String treeFileName = outputFileName+"_tree";
+			FileWriter writer = new FileWriter(treeFileName);
+			writer.write(dotFormat);
+			writer.flush();
+			writer.close();
+			Runtime.getRuntime().exec("dot "+treeFileName + " -Tpng -o "+treeFileName+".png");
+			writer.close();
 			return;
 		}
 		if(line.hasOption(ASTOption.getLongOpt())){
@@ -122,8 +129,8 @@ class Main {
 
 	private static String dotFormat(Node node) {
 		//Name, Label
-		String nodeFormat = "%s [shape=rect, label=%s];";
-		String leafFormat = "%s [shape=rect, label=%s, style=\"filled\" fillcolor=\"#dddddd\"";
+		String nodeFormat = "%s [shape=rect, label=\"%s\"];";
+		String leafFormat = "%s [shape=rect, label=\"%s\", style=\"filled\" fillcolor=\"#dddddd\"];";
 		
 		//
 		String edgeFormat = "%s -> %s;";
@@ -140,8 +147,8 @@ class Main {
 			int count = (int)item[0];
 			Node current = (Node)item[1];
 			String name = "n"+count;
-			String label = (current.value != null)?current.value.toString():current.label;
-			if(node.kids.size()==0){
+			String label = (current.value != null)?current.label+","+current.value.toString():current.label;
+			if(current.kids.size()==0){
 				nodes.add(String.format(leafFormat, name,label));
 			}else {
 				nodes.add(String.format(nodeFormat, name,label));
