@@ -1,5 +1,8 @@
 package cwru.jjs228.pr03;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -301,11 +304,18 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		Node name = visit(ctx.NAME());
 		name.label = "Name";
 		Node typeSpec = visit(ctx.typeSpec());
+		Node paramDeclsRem = visit(ctx.paramDeclsRem());
 		Node paramDecl = new Node("ParamDecl");
 		paramDecl.addkid(name);
 		paramDecl.addkid(typeSpec);
-		Node paramDeclsRem = visit(ctx.paramDeclsRem());
-		return minimize("ParamDecls", paramDecl, paramDeclsRem);
+		List<Node> allParamDecls = new ArrayList<Node>();
+		if(null != paramDeclsRem){
+		paramDecl.addkid(paramDeclsRem);
+		allParamDecls = pullup("ParamDecl", paramDecl);
+		}else{
+			allParamDecls.add(paramDecl);
+		}
+		return minimize("ParamDecls", allParamDecls.toArray(new Node[0]));
 	}
 
 	@Override
@@ -411,10 +421,10 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		} else if (ctx.FLOAT_CONST() != null) {
 			String floatAsString = ctx.getText();
 			float floatVal = Float.parseFloat(floatAsString);
-			int intVal = (int)floatVal;
-			if(floatVal == (float)intVal){
+			int intVal = (int) floatVal;
+			if (floatVal == (float) intVal) {
 				return new Node(intVal, "Float");
-			}else{
+			} else {
 				return new Node(floatVal, "Float");
 			}
 		} else if (ctx.STRING_CONST() != null) {
@@ -448,9 +458,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 */
 	public Node visitBooleanConstant(BooleanConstantContext ctx) {
 		if (ctx.TRUE() != null) {
-			return new Node("true","Boolean");
+			return new Node("true", "Boolean");
 		} else if (ctx.FALSE() != null) {
-			return new Node("false","Boolean");
+			return new Node("false", "Boolean");
 		}
 		return null;
 	}
@@ -654,8 +664,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	public Node visitStart(StartContext ctx) {
 		if (ctx.stmts() != null) {
 			Node result = visit(ctx.stmts());
-			pullup("Stmts", result);
-			return result;
+			List<Node> topLevelStatements = pullup("Stmts", result);
+			for (Node stmt : topLevelStatements) {
+				stmt.label = null;
+			}
+			return minimize("Stmts", topLevelStatements.toArray(new Node[0]));
 		}
 		return null;
 	}
@@ -794,12 +807,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		return (Node) returnNode;
 	}
 
-
 	/**
-	 * Wraps a node as the child node of a new node with a 
-	 * 	specified label.
-	 * This is used to add nodes to the AST that are not part
-	 *  of the parse tree.
+	 * Wraps a node as the child node of a new node with a specified label. This
+	 * is used to add nodes to the AST that are not part of the parse tree.
 	 */
 	private Node wrap(String nodeLabel, Node childNode) {
 		Node newNode = new Node(nodeLabel);
@@ -808,14 +818,13 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	/**
-	 * Creates a new node from a label and a number of child nodes
-	 * If no non-null children are provided, then the method returns null
-	 * Each child of each non null child with no label is added as a child
-	 * 	to the new node.
+	 * Creates a new node from a label and a number of child nodes If no
+	 * non-null children are provided, then the method returns null Each child
+	 * of each non null child with no label is added as a child to the new node.
 	 * If a child node does have a label, it is added to the new node as a child
-	 * If this results in only one child being added to a null labeled node, that
-	 * 	child is returned.
-	 * Otherwise, the new node is returned.
+	 * If this results in only one child being added to a null labeled node,
+	 * that child is returned. Otherwise, the new node is returned.
+	 * 
 	 * @param nodeLabel
 	 * @param childNodes
 	 * @return
@@ -842,27 +851,29 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	/**
-	 * Brings the children of the children of a node up one level
-	 * This is used to convert the string of stmts in the parse tree to a singular stmts in the AST 
+	 * Brings the children of the children of a node up one level This is used
+	 * to convert the string of stmts in the parse tree to a singular stmts in
+	 * the AST
+	 * 
 	 * @param label
 	 * @param node
 	 */
-	private void pullup(String label, Node node) {
+	private List<Node> pullup(String label, Node node) {
+		List<Node> allNodesOfType = new ArrayList<Node>();
+		if (node.label.equals(label)) {
+			allNodesOfType.add(node);
+		}
 		int index = 0;
 		while (index < node.kids.size()) {
-			Node currentKid = (Node) node.kids.get(index);
-			if (currentKid.label.equals(label)) {
-				for (int j = 0; j < currentKid.kids.size(); j++) {
-					if (j == 0) {
-						node.kids.set(index, currentKid.kids.get(j));
-					} else {
-						node.kids.add(index + j, currentKid.kids.get(j));
-					}
-				}
+			Node kid = (Node) node.kids.get(index);
+			if (kid.label.equals(label)) {
+				allNodesOfType.addAll(pullup(label, kid));
+				node.kids.remove(index);
 			} else {
 				index++;
 			}
 		}
+		return allNodesOfType;
 	}
 
 	@Override
