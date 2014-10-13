@@ -154,5 +154,11 @@ public class test_Main {
 		fileCompareTest(new String[] { "examples/24-ex-input.txt" },
 				"examples/24-ex-output.txt");
 	}
+	
+	@Test
+	public void testExample25() {
+		fileCompareTest(new String[] { "examples/25-ex-input.txt" },
+				"examples/25-ex-output.txt");
+	}
 }
 
