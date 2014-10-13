@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
+import cwru.jjs228.pr03.Helper;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -79,9 +80,14 @@ class Main {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		ArrowLangParser parser = new ArrowLangParser(tokens);
 		parser.addErrorListener(new ExceptionErrorListener());
+		Node ast = null;
+		try{
 		ParseTree tree = parser.start();
 		ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
-		Node ast = visitor.visit(tree);
+		ast = visitor.visit(tree);
+		} catch(Exception e){
+			Helper.endExecutionWithError(e.getMessage());
+		}
 		String traversal = preOrderTraverse(ast,"");
 		if(line.hasOption(visualizeASTOption.getLongOpt())){
 			String dotFormat = dotFormat(ast);
