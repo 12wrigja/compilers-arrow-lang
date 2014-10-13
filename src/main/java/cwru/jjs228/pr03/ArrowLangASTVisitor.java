@@ -158,6 +158,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a BooleanTerm node
+	 * Depending on the production taken, will return
+	 * 	a CmpExpr node, a BooleanConstant node, or a 
+	 * 	BooleanExprNode.
+	 */
 	public Node visitBooleanTerm(BooleanTermContext ctx) {
 		Node cmpExpr = visit(ctx.cmpExpr());
 		Node booleanConstant = visit(ctx.booleanConstant());
@@ -196,6 +202,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a CmpOp node
+	 * Returns a node labeled with the proper 
+	 * 	comparison operator based on the the tokens in the node
+	 */
 	public Node visitCmpOp(CmpOpContext ctx) {
 		if (ctx.LT() != null) {
 			if (ctx.EQ(0) != null) {
@@ -363,7 +374,10 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	@Override
 	/**
 	 * Visits an IfStmt node
-	 * 
+	 * If it has a null else if statement,
+	 * 	then an empty ElseIf node is attached
+	 * Wraps the contained boolean expression in
+	 * 	a BooleanExpr node to meet the AST grammar
 	 */
 	public Node visitIfStmt(IfStmtContext ctx) {
 		Node booleanExpr = visit(ctx.booleanExpr());
@@ -377,6 +391,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a NotExpr node
+	 * Returns a node with a Not label and a booleanTerm
+	 * 	child if it produces a negation
+	 * Otherwise, returns the booleanTerm node
+	 */
 	public Node visitNotExpr(NotExprContext ctx) {
 		Node excl = visit(ctx.EXCL());
 		Node booleanTerm = visit(ctx.booleanTerm());
@@ -704,6 +724,10 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a BlockStmts node
+	 * 
+	 */
 	public Node visitBlockStmts(BlockStmtsContext ctx) {
 		Node blockStmt = visit(ctx.blockStmt());
 		Node blockStmts = visit(ctx.blockStmts());
@@ -711,6 +735,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a CmpExpr node
+	 * Returns a node with the label of of the comparison
+	 * 	operator used and children of the two expressions 
+	 * 	being compared.
+	 */
 	public Node visitCmpExpr(CmpExprContext ctx) {
 		Node arithExpr1 = visit(ctx.arithExpr(0));
 		Node cmpOp = visit(ctx.cmpOp());
