@@ -1,27 +1,50 @@
 package cwru.jjs228.pr03;
 
 import java.util.ArrayList;
-
+/**
+ * A node in an AST
+ * @author joseph
+ *
+ * @param <T>
+ */
 public class Node<T> {
 
 	public T value;
 	public String label;
 	public ArrayList<Node<?>> kids = new ArrayList<Node<?>>();
 
+	/**
+	 * Creates a new node with no label and a specified value
+	 * @param value the value contained in the node
+	 */
 	public Node(T value) {
 		this.value = value;
 		this.label = "";
 	}
 	
+	/**
+	 * Creates a new node with a label and null value
+	 * @param label the label for the node
+	 */
 	public Node(String label){
 		this.label = label;
 	}
 	
+	/**
+	 * Creates a new node with label and value
+	 * @param value the value for the node
+	 * @param label the label for the node
+	 */
 	public Node(T value, String label){
 		this.value = value;
 		this.label = label;
 	}
 
+	/**
+	 * Adds a kid to a node
+	 * @param n The node to add
+	 * @return the current node
+	 */
 	public Node<T> addkid(Node<?> n) {
 		this.kids.add(n);
 		return this;

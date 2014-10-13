@@ -51,6 +51,11 @@ import cwru.jjs228.pr03.ArrowLangParser.TypeSpecContext;
 import cwru.jjs228.pr03.ArrowLangParser.ValueExprContext;
 import cwru.jjs228.pr03.ArrowLangParser.WhileStmtContext;
 
+/**
+ * A vistor class for traversing parse trees output by ANTLR
+ * @author joseph satterfield james wright
+ *
+ */
 public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		implements ArrowLangVisitor<Node> {
 
@@ -97,6 +102,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a FuncDefStmt node
+	 * Returns a node with label FuncDef and children
+	 * 	ParamDecls, Type, ReturnType, and Block
+	 */
 	public Node visitFuncDefStmt(FuncDefStmtContext ctx) {
 		Node name = visit(ctx.NAME());
 		name.label = "Name";
@@ -114,6 +124,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a LoopControlStmt node
+	 * Returns a node with a label Continue or Break
+	 * 	depending on which control statement is in the node
+	 */
 	public Node visitLoopControlStmt(LoopControlStmtContext ctx) {
 		if (ctx.CONTINUE() != null) {
 			return new Node("Continue");
@@ -124,6 +139,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a Stmts node
+	 * Returns a node with label Stmts and possible
+	 * 	children tstmt and stmts
+	 */
 	public Node visitStmts(StmtsContext ctx) {
 		Node tstmt = visit(ctx.tStmt());
 		Node stmts = visit(ctx.stmts());
@@ -131,6 +151,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a  ReturnStmt node
+	 * If there is an associated expression, adds that as a 
+	 * 	child to the return node
+	 * If not, returns a node with label return and no children
+	 */
 	public Node visitReturnStmt(ReturnStmtContext ctx) {
 		Node expr = visit(ctx.expr());
 		if (expr != null) {
@@ -141,6 +167,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a block node
+	 * Returns a node with a Block label and
+	 * 	children of all statements in the block including
+	 * 	the return statement
+	 */
 	public Node visitBlock(BlockContext ctx) {
 		Node blockStmts = visit(ctx.blockStmts());
 		Node returnStmt = visit(ctx.returnStmt());
@@ -650,6 +682,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a WhileStmt node
+	 * Returns a node with a While label and 
+	 * 	children of WhileNode, BooleanExpr(if not null)
+	 * 	and Block nodes
+	 */
 	public Node visitWhileStmt(WhileStmtContext ctx) {
 		Node whileNode = visit(ctx.WHILE());
 		Node booleanExpr = visit(ctx.booleanExpr());
@@ -706,6 +744,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits an ElseIfStmt node
+	 * Returns a node with a label of ElseIf and children of
+	 * 	Block and IfStmt, if those are not null
+	 */
 	public Node visitElseIfStmt(ElseIfStmtContext ctx) {
 		Node block = visit(ctx.block());
 		Node ifStmt = visit(ctx.ifStmt());
@@ -726,7 +769,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	@Override
 	/**
 	 * Visits a BlockStmts node
-	 * 
+	 * Returns a node with a with a null label so that all 
+	 * 	Stmt nodes are on the same level after being minimized.
 	 */
 	public Node visitBlockStmts(BlockStmtsContext ctx) {
 		Node blockStmt = visit(ctx.blockStmt());
@@ -795,6 +839,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	}
 
 	@Override
+	/**
+	 * Visits a BlockStmt node
+	 * Returns a node with a null label so that all blockStmt
+	 * 	and LoopCtrlStmt nodes are on the same level of the tree
+	 * 	when minimized
+	 */
 	public Node visitBlockStmt(BlockStmtContext ctx) {
 		Node blockStmt = visit(ctx.stmt());
 		Node loopCtrlStmt = visit(ctx.loopControlStmt());

@@ -36,6 +36,11 @@ class Main {
 		
 		private final static Options options = new Options();
 	
+		/**
+		 * Main class for the compiler
+		 * @param argv arguments for the compiler
+		 * @throws IOException
+		 */
 	public static void main(String[] argv) throws IOException {
 		
 		options.addOption(helpOpt);
