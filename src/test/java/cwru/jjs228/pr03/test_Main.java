@@ -163,7 +163,7 @@ public class test_Main {
 	
 	@Test
 	public void testExample26() {
-		fileCompareTest(new String[] { "examples/26-ex-input.txt" },
+		fileCompareTest(new String[] { "examples/26-ex-input.txt" }, "a.ast",
 				"examples/26-ex-output.txt");
 	}
 	
