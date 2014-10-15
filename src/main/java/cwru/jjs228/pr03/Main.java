@@ -62,6 +62,12 @@ class Main {
 		}
 		
 		String[] extraArgs = line.getArgs();
+		if(extraArgs.length==0){
+			System.err.println("Must supply some input paths.");
+			System.err.println("pr03 -o <path> <input>+");
+			System.err.println("Try -h or --help for help.");
+			System.exit(1);
+		}
 		
 		String outputFileName = null;
 		if(line.hasOption(outputOpt.getOpt())){
@@ -78,10 +84,16 @@ class Main {
 		ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
 		Node ast = visitor.visit(tree);
 		String traversal = preOrderTraverse(ast,"");
+//		System.out.println((traversal.isEmpty())?"No traversal data.":traversal);
+		FileWriter writer = new FileWriter("a.ast");
+		writer.write(traversal);
+		writer.flush();
+		writer.close();
+		
 		if(line.hasOption(visualizeASTOption.getLongOpt())){
 			String dotFormat = dotFormat(ast);
 			String treeFileName = outputFileName+"_tree";
-			FileWriter writer = new FileWriter(treeFileName);
+			writer = new FileWriter(treeFileName);
 			writer.write(dotFormat);
 			writer.flush();
 			writer.close();
@@ -92,8 +104,6 @@ class Main {
 		if(line.hasOption(ASTOption.getLongOpt())){
 			return;
 		}
-		
-		
 	}
 
 	public static void Usage(Options options) {
@@ -119,10 +129,10 @@ class Main {
 		if (null == node) {
 			return output;
 		}
-		output.concat(node.kids.size() + ":" + node.label
-				+ ((null != node.value) ? "," + node.value : ""));
+		output = output.concat(node.kids.size() + ":" + node.label
+				+ ((null != node.value) ? "," + node.value +"\n": "\n"));
 		for (Node kid : ((Iterable<Node>) node.kids)) {
-			preOrderTraverse(kid,output);
+			output = preOrderTraverse(kid,output);
 		}
 		return output;
 	}
@@ -181,7 +191,6 @@ class Main {
 	 * Prints the help for the project
 	 */
 	private static void showUsage() {
-		System.out.println("pr03 -o <path> <input>+");
 		new HelpFormatter().printHelp("pr03", options, true);
 		System.exit(1);
 	}
