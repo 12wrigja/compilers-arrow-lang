@@ -1,0 +1,7 @@
+func f(i int32, j int32, k int32, l int32) int32{
+	var x = 1
+	var y = 1
+	return 1
+}
+
+print_int32(f(1,2,3, 4))

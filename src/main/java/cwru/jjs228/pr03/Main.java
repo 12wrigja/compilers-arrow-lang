@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
+import cwru.jjs228.pr03.Helper;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -36,6 +37,11 @@ class Main {
 		
 		private final static Options options = new Options();
 	
+		/**
+		 * Main class for the compiler
+		 * @param argv arguments for the compiler
+		 * @throws IOException
+		 */
 	public static void main(String[] argv) throws IOException {
 		
 		options.addOption(helpOpt);
@@ -80,9 +86,14 @@ class Main {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		ArrowLangParser parser = new ArrowLangParser(tokens);
 		parser.addErrorListener(new ExceptionErrorListener());
+		Node ast = null;
+		try{
 		ParseTree tree = parser.start();
 		ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
-		Node ast = visitor.visit(tree);
+		ast = visitor.visit(tree);
+		} catch(Exception e){
+			Helper.endExecutionWithError(e.getMessage());
+		}
 		String traversal = preOrderTraverse(ast,"");
 //		System.out.println((traversal.isEmpty())?"No traversal data.":traversal);
 		FileWriter writer = new FileWriter("a.ast");

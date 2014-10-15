@@ -160,5 +160,23 @@ public class test_Main {
 		fileCompareTest(new String[] { "examples/25-ex-input.txt" },"a.ast",
 				"examples/25-ex-output.txt");
 	}
+	
+	@Test
+	public void testExample26() {
+		fileCompareTest(new String[] { "examples/26-ex-input.txt" },
+				"examples/26-ex-output.txt");
+	}
+	
+	/*@Test
+	public void testExample27() {
+		fileCompareTest(new String[] { "examples/27-ex-input.txt" },
+				"examples/27-ex-output.txt");
+	}*/
+	
+	/*@Test
+	public void testExample28() {
+		fileCompareTest(new String[] { "examples/28-ex-input.txt" },
+				"examples/28-ex-output.txt");
+	}*/
 }
 
