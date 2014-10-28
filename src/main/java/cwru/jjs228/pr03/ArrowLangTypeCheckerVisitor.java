@@ -24,7 +24,8 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visit(TypedNode node) throws TypeCheckingException, SymbolTableException {
+	public void visit(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
 		visitStmts(node);
 	}
 
@@ -44,11 +45,22 @@ public class ArrowLangTypeCheckerVisitor {
 		node.type = SizedType.STRING;
 	}
 
-	public void visitSymbol(TypedNode node) {
+	public void visitSymbol(TypedNode node) throws TypeCheckingException {
+		// Get name of the variable used and check symbol table for it.
+		String variableName = node.value.toString();
 
+		// If the symbol is not yet defined, throw an error. Else,
+		// Get type from symbol table and assign symbol the type retrieved.
+		if (context.isDefined(variableName)) {
+			node.type = context.get(variableName);
+		} else {
+			throw new TypeCheckingException("Symbol " + variableName
+					+ " is undefined.");
+		}
 	}
 
-	public void visitStmts(TypedNode node) throws TypeCheckingException, SymbolTableException {
+	public void visitStmts(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
 		boolean allUnits = true;
 		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
 			visitStmt(kid);
@@ -64,7 +76,8 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitStmt(TypedNode node) throws TypeCheckingException, SymbolTableException {
+	public void visitStmt(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
 		String name = node.label;
 		switch (name) {
 		case "FuncDef": {
@@ -115,29 +128,31 @@ public class ArrowLangTypeCheckerVisitor {
 
 	}
 
-	public void visitShortDeclStmt(TypedNode node) throws TypeCheckingException, SymbolTableException {
-		
+	public void visitShortDeclStmt(TypedNode node)
+			throws TypeCheckingException, SymbolTableException {
+
 		List<TypedNode> children = node.kids;
-		
-		//Kid 0 should be the name. Check and see if it is undefined.
+
+		// Kid 0 should be the name. Check and see if it is undefined.
 		TypedNode nameNode = children.get(0);
 		String variableName = nameNode.value.toString();
-		if(context.isDefined(variableName)){
-			throw new TypeCheckingException("Variable " + variableName + "is already defined.");
+		if (context.isDefined(variableName)) {
+			throw new TypeCheckingException("Variable " + variableName
+					+ "is already defined.");
 		}
-		
-		//Variable is undefined at this point.
-		//Compute variable type.
+
+		// Variable is undefined at this point.
+		// Compute variable type.
 		TypedNode expressionNode = children.get(1);
 		visitExpression(expressionNode);
-		
-		//Add the variable to the symbol table with the defined type.
+
+		// Add the variable to the symbol table with the defined type.
 		context.put(variableName, expressionNode.type);
-		
-		//Set the type of the name node to the type of the expression
+
+		// Set the type of the name node to the type of the expression
 		nameNode.type = expressionNode.type;
-		
-		//Set the type of the entire short declaration statement to unit.
+
+		// Set the type of the entire short declaration statement to unit.
 		node.type = SizedType.UNIT;
 	}
 
@@ -153,8 +168,34 @@ public class ArrowLangTypeCheckerVisitor {
 
 	}
 
-	public void visitExpression(TypedNode node) {
-
+	public void visitExpression(TypedNode node) throws TypeCheckingException {
+		switch (node.label) {
+		case "+": /* Type-Check as an addition */
+		case "-": /* Type-Check as a subtraction */
+		case "*": /* Type-Check as a multiplication */
+		case "/": /* Type-Check as a division */
+		case "%": /* Type-Check as a modulo */
+			visitArithOp(node);
+			break;
+		case "Int": /* Type-Check as a 32-bit int */
+			visitIntConstant(node);
+			break;
+		case "Float": /* Type-Check as a 32-bit floating point number */
+			visitFloatConstant(node);
+			break;
+		case "String": /* Type-Check as a string */
+			visitStringConstant(node);
+			break;
+		case "Symbol": /* Type-Check as a symbol */
+			visitSymbol(node);
+			break;
+		case "Call": /* Type-Check as a function call */
+			visitCall(node);
+			break;
+		default: /* Throw exception and break everything. */
+			throw new TypeCheckingException(
+					"Trying to typecheck something that should not be there.");
+		}
 	}
 
 	public void visitBlock(TypedNode node) {
