@@ -16,6 +16,14 @@ public class TypedNode<T> extends Node<T> {
 		this.type = type;
 	}
 	
+	public TypedNode(Node<T> node){
+		super(node.value, node.label);
+		for(Node<?> kid: node.kids){
+			TypedNode<?> child = new TypedNode<>(kid);
+			addkid(child);
+		}
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Node) {
