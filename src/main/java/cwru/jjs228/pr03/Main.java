@@ -193,7 +193,7 @@ class Main {
 			return output;
 		}
 		output = output.concat(node.kids.size() + ":" + node.label
-				+ ((null != node.value) ? "," + node.value : "\n"))
+				+ ((null != node.value) ? "," + node.value : ""))
 				+ ((null != node.type) ? ":" + node.type.toString() + "\n": "\n");
 		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
 			output = preOrderTraverseType(kid, output);
