@@ -40,11 +40,11 @@ public class SymbolTable {
 		this.symbols.getFirst().put(symbol, value);
 	}
 
-	public boolean topHas(String symbol) {
+	public boolean isLocallyDefined(String symbol) {
 		return this.symbols.getFirst().containsKey(symbol);
 	}
 
-	public boolean has(String symbol) {
+	public boolean isDefined(String symbol) {
 		for (HashMap<String, Type> table : this.symbols) {
 			if (table.containsKey(symbol)) {
 				return true;
