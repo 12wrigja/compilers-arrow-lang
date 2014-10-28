@@ -11,21 +11,21 @@ public class SymbolTable {
 		}
 	}
 
-	LinkedList<HashMap<String, TypedNode>> symbols = new LinkedList<HashMap<String, TypedNode>>();
+	LinkedList<HashMap<String, Type>> symbols = new LinkedList<HashMap<String, Type>>();
 
 	public void push() {
-		this.symbols.add(0, new HashMap<String, TypedNode>());
+		this.symbols.add(0, new HashMap<String, Type>());
 	}
 
-	public HashMap<String, TypedNode> pop() throws SymbolTableException {
+	public HashMap<String, Type> pop() throws SymbolTableException {
 		if (this.symbols.size() < 1) {
 			throw new SymbolTableException("Nothing to pop!");
 		}
 		return this.symbols.removeFirst();
 	}
 
-	public TypedNode get(String symbol) {
-		for (HashMap<String, TypedNode> table : this.symbols) {
+	public Type get(String symbol) {
+		for (HashMap<String, Type> table : this.symbols) {
 			if (table.containsKey(symbol)) {
 				return table.get(symbol);
 			}
@@ -33,7 +33,7 @@ public class SymbolTable {
 		return null;
 	}
 
-	public void put(String symbol, TypedNode value) throws SymbolTableException {
+	public void put(String symbol, Type value) throws SymbolTableException {
 		if (this.symbols.size() < 1) {
 			throw new SymbolTableException("No tables on the stack");
 		}
@@ -45,7 +45,7 @@ public class SymbolTable {
 	}
 
 	public boolean has(String symbol) {
-		for (HashMap<String, TypedNode> table : this.symbols) {
+		for (HashMap<String, Type> table : this.symbols) {
 			if (table.containsKey(symbol)) {
 				return true;
 			}
