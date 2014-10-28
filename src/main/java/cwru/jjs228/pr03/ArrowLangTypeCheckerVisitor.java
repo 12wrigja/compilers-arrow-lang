@@ -2,113 +2,126 @@ package cwru.jjs228.pr03;
 
 public class ArrowLangTypeCheckerVisitor {
 	
-	public TypedNode visit(Node node){
+	
+	public ArrowLangTypeCheckerVisitor(){
+		//TODO : Build Symbol table, add native functions to table.
+	}
+	
+	public void visit(TypedNode node) {
+
+	}
+
+	public void visitIntConstant(TypedNode node) {
+		node.type = IntType.Int32;
+	}
+
+	public void visitFloatConstant(TypedNode node) {
+		node.type = SizedType.FLOAT32;
+	}
+
+	public void visitBoolConstant(TypedNode node) {
+		node.type = SizedType.BOOLEAN;
+	}
+
+	public void visitStringConstant(TypedNode node) {
+		node.type = SizedType.STRING;
+	}
+
+	public void visitSymbol(TypedNode node) {
 		
 	}
-	
-	public TypedNode visitIntConstant(Node node){
-		TypedNode temp = (TypedNode)node;
-		temp.type = IntType.Int32;
-		return temp;
-	}
-	
-	public TypedNode visitFloatConstant(Node node){
-		
-	}
-	
-	public TypedNode visitBoolConstant(Node node) {
 
-	}	
-	
-	public TypedNode visitStringConstant(Node node) {
-
+	public void visitStmts(TypedNode node) throws TypeCheckingException {
+		boolean allUnits = true;
+		for(TypedNode kid : ((Iterable<TypedNode>)node.kids)){
+			if(kid.type != SizedType.UNIT){
+				allUnits = false;
+			}
+		}
+		if(allUnits){
+			node.type = SizedType.UNIT;
+		}else{
+			throw new TypeCheckingException("Stmts children are not all unit type. Unable to type-check.");
+		}
 	}
-	
-	public TypedNode visitSymbol(Node node) {
+
+	public void visitFuncDefStmt(TypedNode node) {
 
 	}
-	
-	public TypedNode visitStmts(Node node) {
+
+	public void visitReturn(TypedNode node) {
 
 	}
-	
-	public TypedNode visitFuncDefStmt(Node node) {
+
+	public void visitDeclStmt(TypedNode node) {
 
 	}
-	
-	public TypedNode visitReturn(Node node) {
+
+	public void visitShortDeclStmt(TypedNode node) {
 
 	}
-	
-	public TypedNode visitDeclStmt(Node node) {
+
+	public void visitAssignStmt(TypedNode node) {
 
 	}
-	
-	public TypedNode visitShortDeclStmt(Node node) {
+
+	public void visitIfElseStmt(TypedNode node) {
 
 	}
-	
-	public TypedNode visitAssignStmt(Node node) {
+
+	public void visitForStmt(TypedNode node) {
 
 	}
-	
-	public TypedNode visitIfElseStmt(Node node) {
+
+	public void visitE(TypedNode node) {
 
 	}
-	
-	public TypedNode visitForStmt(Node node) {
+
+	public void visitBlock(TypedNode node) {
 
 	}
-	
-	public TypedNode visitE(Node node) {
+
+	public void visitDeclExpr(TypedNode node) {
 
 	}
-	
-	public TypedNode visitBlock(Node node) {
+
+	public void visitUpdateExpr(TypedNode node) {
 
 	}
-	
-	public TypedNode visitDeclExpr(Node node) {
+
+	public void visitBooleanExpr(TypedNode node) {
 
 	}
-	
-	public TypedNode visitUpdateExpr(Node node) {
+
+	public void visitAnd(TypedNode node) {
 
 	}
-	
-	public TypedNode visitBooleanExpr(Node node) {
+
+	public void visitOr(TypedNode node) {
 
 	}
-	
-	public TypedNode visitAnd(Node node) {
+
+	public void visitNegateBoolean(TypedNode node) {
 
 	}
-	
-	public TypedNode visitOr(Node node) {
+
+	public void visitCmpOp(TypedNode node) {
 
 	}
-	
-	public TypedNode visitNegateBoolean(Node node) {
+
+	public void visitCall(TypedNode node) {
 
 	}
-	
-	public TypedNode visitCmpOp(Node node) {
+
+	public void visitCast(TypedNode node) {
 
 	}
-	
-	public TypedNode visitCall(Node node) {
+
+	public void visitArithOp(TypedNode node) {
 
 	}
-	
-	public TypedNode visitCast(Node node) {
 
-	}
-	
-	public TypedNode visitArithOp(Node node) {
-
-	}
-	
-	public TypedNode visitNegateArith(Node node) {
+	public void visitNegateArith(TypedNode node) {
 
 	}
 }
