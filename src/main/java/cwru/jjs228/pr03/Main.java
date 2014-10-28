@@ -89,6 +89,8 @@ class Main {
 		String outputFileName = null;
 		if (line.hasOption(outputOpt.getOpt())) {
 			outputFileName = line.getOptionValue(outputOpt.getOpt());
+		} else{
+			outputFileName = "output";
 		}
 
 		ANTLRInputStream stream = new ANTLRInputStream(new FileReader(
@@ -124,7 +126,7 @@ class Main {
 		if (line.hasOption(ASTOption.getLongOpt())) {
 			String traversal = preOrderTraverse(ast, "");
 			// System.out.println((traversal.isEmpty())?"No traversal data.":traversal);
-			FileWriter writer = new FileWriter("a.ast");
+			FileWriter writer = new FileWriter(outputFileName + ".ast");
 			writer.write(traversal);
 			writer.flush();
 			writer.close();
@@ -143,7 +145,7 @@ class Main {
 		
 		if(line.hasOption(typedASTOption.getLongOpt())) {
 			String traversal = preOrderTraverseType(typedAst, "");
-			FileWriter writer = new FileWriter("typed.ast");
+			FileWriter writer = new FileWriter(outputFileName + ".ast");
 			writer.write(traversal);
 			writer.flush();
 			writer.close();
