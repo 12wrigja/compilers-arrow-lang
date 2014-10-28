@@ -7,7 +7,9 @@ public class ArrowLangTypeCheckerVisitor {
 	}
 	
 	public TypedNode visitIntConstant(Node node){
-		
+		TypedNode temp = (TypedNode)node;
+		temp.type = IntType.Int32;
+		return temp;
 	}
 	
 	public TypedNode visitFloatConstant(Node node){
@@ -16,7 +18,7 @@ public class ArrowLangTypeCheckerVisitor {
 	
 	public TypedNode visitBoolConstant(Node node) {
 
-	}
+	}	
 	
 	public TypedNode visitStringConstant(Node node) {
 

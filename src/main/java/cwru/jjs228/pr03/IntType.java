@@ -1,6 +1,6 @@
 package cwru.jjs228.pr03;
 
-public class IntType extends Type {
+public class IntType extends SizedType {
 
 	public boolean signedInt;
 	
