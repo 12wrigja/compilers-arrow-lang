@@ -1,7 +1,5 @@
 package cwru.jjs228.pr03;
 
-import sun.net.www.protocol.http.AuthCacheValue.Type;
-
 public class TypedNode<T> extends Node<T> {
 
 	
