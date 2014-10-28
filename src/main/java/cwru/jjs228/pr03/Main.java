@@ -124,9 +124,14 @@ class Main {
 			writer.close();
 			return;
 		}
+		
 		if (line.hasOption(ASTOption.getLongOpt())) {
 			return;
 		}
+		
+		TypedNode typedAst = new TypedNode(ast);
+		ArrowLangTypeCheckerVisitor typeVisitor = new ArrowLangTypeCheckerVisitor();
+		typeVisitor.visit(typedAst);
 	}
 
 	public static void Usage(Options options) {
