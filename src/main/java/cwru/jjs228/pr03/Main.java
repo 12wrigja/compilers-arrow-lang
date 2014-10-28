@@ -8,7 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
+
 import cwru.jjs228.pr03.Helper;
+import cwru.jjs228.pr03.SymbolTable.SymbolTableException;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -104,17 +106,12 @@ class Main {
 		} catch (Exception e) {
 			Helper.endExecutionWithError(e.getMessage());
 		}
-		String traversal = preOrderTraverse(ast, "");
-		// System.out.println((traversal.isEmpty())?"No traversal data.":traversal);
-		FileWriter writer = new FileWriter("a.ast");
-		writer.write(traversal);
-		writer.flush();
-		writer.close();
+		
 
 		if (line.hasOption(visualizeASTOption.getLongOpt())) {
 			String dotFormat = dotFormat(ast);
 			String treeFileName = outputFileName + "_tree";
-			writer = new FileWriter(treeFileName);
+			FileWriter writer = new FileWriter(treeFileName);
 			writer.write(dotFormat);
 			writer.flush();
 			writer.close();
@@ -122,16 +119,40 @@ class Main {
 					"dot " + treeFileName + " -Tpng -o " + treeFileName
 							+ ".png");
 			writer.close();
-			return;
 		}
 		
 		if (line.hasOption(ASTOption.getLongOpt())) {
+			String traversal = preOrderTraverse(ast, "");
+			// System.out.println((traversal.isEmpty())?"No traversal data.":traversal);
+			FileWriter writer = new FileWriter("a.ast");
+			writer.write(traversal);
+			writer.flush();
+			writer.close();
 			return;
 		}
 		
 		TypedNode typedAst = new TypedNode(ast);
 		ArrowLangTypeCheckerVisitor typeVisitor = new ArrowLangTypeCheckerVisitor();
-		typeVisitor.visit(typedAst);
+		try {
+			typeVisitor.visit(typedAst);
+		} catch (TypeCheckingException e) {
+			Helper.endExecutionWithError(e.getMessage());
+		} catch (SymbolTableException e) {
+			Helper.endExecutionWithError(e.getMessage());
+		}
+		
+		if(line.hasOption(typedASTOption.getLongOpt())) {
+			String traversal = preOrderTraverseType(typedAst, "");
+			FileWriter writer = new FileWriter("typed.ast");
+			writer.write(traversal);
+			writer.flush();
+			writer.close();
+			return;
+		}
+		
+		//Insert new stuff above here
+		//Delete when we have a legit compiler
+		Helper.endExecutionWithError("No operations past typed AST creation supported yet");
 	}
 
 	public static void Usage(Options options) {
@@ -161,6 +182,19 @@ class Main {
 				+ ((null != node.value) ? "," + node.value + "\n" : "\n"));
 		for (Node kid : ((Iterable<Node>) node.kids)) {
 			output = preOrderTraverse(kid, output);
+		}
+		return output;
+	}
+	
+	private static String preOrderTraverseType(TypedNode node, String output) {
+		if (null == node) {
+			return output;
+		}
+		output = output.concat(node.kids.size() + ":" + node.label
+				+ ((null != node.value) ? "," + node.value : "\n"))
+				+ ((null != node.type) ? ":" + node.type.toString() + "\n": "\n");
+		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
+			output = preOrderTraverseType(kid, output);
 		}
 		return output;
 	}
