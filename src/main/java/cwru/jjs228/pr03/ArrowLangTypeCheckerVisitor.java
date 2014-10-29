@@ -317,7 +317,7 @@ public class ArrowLangTypeCheckerVisitor {
 		node.type = typeNode.type;
 	}
 
-	public void visitType(TypedNode<?> node) {
+	public void visitType(TypedNode<?> node) throws TypeCheckingException, SymbolTableException {
 		TypedNode<?> typeName = (TypedNode<?>) node.kids.get(0);
 		visit(typeName);
 		node.type = typeName.type;
@@ -327,7 +327,7 @@ public class ArrowLangTypeCheckerVisitor {
 		node.type = Type.typeForString(node.value.toString());
 	}
 
-	public void visitReturnType(TypedNode<?> node) {
+	public void visitReturnType(TypedNode<?> node) throws TypeCheckingException, SymbolTableException {
 		TypedNode<?> typeNode = (TypedNode<?>) node.kids.get(0);
 		visit(typeNode);
 		node.type = typeNode.type;
