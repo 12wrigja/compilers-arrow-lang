@@ -28,7 +28,98 @@ public class ArrowLangTypeCheckerVisitor {
 
 	public void visit(TypedNode node) throws TypeCheckingException,
 			SymbolTableException {
-		visitStmts(node);
+		String name = node.label;
+		switch(name){
+		case "Stmts":{
+			visitStmts(node);
+			break;
+		}
+		case "Symbol":{
+			visitSymbol(node);
+			break;
+		}
+		case "Int":{
+			visitIntConstant(node);
+			break;
+		}
+		case "Float":{
+			visitFloatConstant(node);
+			break;
+		}
+		case "Boolean":{
+			visitBoolConstant(node);
+			break;
+		}
+		case "String":{
+			visitStringConstant(node);
+			break;
+		}
+		case "And":{
+			visitAnd(node);
+			break;
+		}
+		case "Or":{
+			visitOr(node);
+			break;
+		}
+		case "Not":{
+			visitNegateBoolean(node);
+			break;
+		}
+		case "FuncDef": {
+			visitFuncDefStmt(node);
+			break;
+		}
+		case "Decl": {
+			visitDeclStmt(node);
+			break;
+		}
+		case "ShortDecl": {
+			visitShortDeclStmt(node);
+			break;
+		}
+		case "AssignStmt": {
+			visitAssignStmt(node);
+			break;
+		}
+		case "If": {
+			visitIfElseStmt(node);
+			break;
+		}
+		case "For": {
+			visitForStmt(node);
+			break;
+		}
+		case "Call": {
+			visitCall(node);
+			break;
+		}
+		case "Return":{
+			visitReturn(node);
+			break;
+		}
+		case "ParamDecls":{
+			visitParameters(node);
+			break;
+		}
+		case "ParamDecl":{
+			visitParameter(node);
+			break;
+		}
+		case "+": /* Type-Check as an addition */
+		case "-": /* Type-Check as a subtraction */
+		case "*": /* Type-Check as a multiplication */
+		case "/": /* Type-Check as a division */
+		case "%":{ /* Type-Check as a modulo */
+			visitArithOp(node);
+			break;
+		}
+		default:{
+			throw new TypeCheckingException(
+					"Unable to handle statement with label " + name);
+		}
+ 		}
+		//visitStmts(node);
 	}
 
 	public void visitIntConstant(TypedNode node) {
@@ -65,7 +156,7 @@ public class ArrowLangTypeCheckerVisitor {
 			SymbolTableException {
 		boolean allUnits = true;
 		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
-			visitStmt(kid);
+			visit(kid);
 			if (kid.type != Type.UNIT) {
 				allUnits = false;
 			}
@@ -140,7 +231,7 @@ public class ArrowLangTypeCheckerVisitor {
 
 		// Child 2 should be the parameters.
 		TypedNode parameters = children.get(1);
-		visitParameters(parameters);
+		visit(parameters);
 
 		// Child 3 should be the return type
 		TypedNode returnNode = children.get(2);
@@ -167,7 +258,7 @@ public class ArrowLangTypeCheckerVisitor {
 		List<String> paramTypes = new ArrayList<String>();
 		List<TypedNode> children = node.kids;
 		for (TypedNode kid : children) {
-			visitParameter(kid);
+			visit(kid);
 			paramTypes.add(kid.type.name);
 		}
 		node.type = new Type(Arrays.deepToString(paramTypes.toArray())
@@ -246,7 +337,7 @@ public class ArrowLangTypeCheckerVisitor {
 		// Variable is undefined at this point.
 		// Compute variable type.
 		TypedNode expressionNode = children.get(1);
-		visitExpression(expressionNode);
+		visit(expressionNode);
 
 		// Add the variable to the symbol table with the defined type.
 		context.put(variableName, expressionNode.type);
@@ -273,7 +364,7 @@ public class ArrowLangTypeCheckerVisitor {
 		// Variable is undefined at this point.
 		// Compute variable type.
 		TypedNode expressionNode = children.get(1);
-		visitExpression(expressionNode);
+		visit(expressionNode);
 
 		// Retrieve the variable's type and see if the type is incompatible with
 		// the expression's type.
