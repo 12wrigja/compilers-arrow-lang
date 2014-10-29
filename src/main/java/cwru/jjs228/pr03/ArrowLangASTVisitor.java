@@ -487,7 +487,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 				return new Node(floatVal, "Float");
 			}
 		} else if (ctx.STRING_CONST() != null) {
-			return new Node(ctx.getText(), "String");
+			String text = ctx.getText();
+			text = text.substring(1, text.length()-1);
+			return new Node(text, "String");
 		}
 		return null;
 	}
