@@ -213,6 +213,6 @@ NAME : ([a-zA-Z])([a-zA-Z0-9_])*;
 INT_CONST : [0-9]+;
 FLOAT_CONST : [0-9]*[.]?[0-9]+(([e]|[E])([-]|[+])?[0-9]+)?;
 LINE_COMMENT : '//'[^\n]* ->skip;
-STRING_CONST : '"'[\S\t ]*[^\\]'"';
+STRING_CONST : '\"'('\\'.|~('\"'))*'\"';
 ML_COMMENT : '/*'[\s\S]*[^\\]'*/' ->skip;
 WHITESPACE : ([\t\n\r]|' ')+ ->channel(HIDDEN);
