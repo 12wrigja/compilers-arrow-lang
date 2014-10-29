@@ -11,4 +11,10 @@ public class NativeLibrary {
 		FunctionType print = new FunctionType("print", new Type[]{Type.STRING}, SizedType.UNIT);
 		return new FunctionType[]{printint32,printuint32,printint8,printuint8,printfloat32,print};
 	}
+	
+	public static FunctionType[] castingFunctions(){
+		FunctionType castint32 = new FunctionType("print_int32", new Type[]{IntType.Int32}, SizedType.UNIT);
+		
+		return new FunctionType[]{castint32};
+	}
 }
