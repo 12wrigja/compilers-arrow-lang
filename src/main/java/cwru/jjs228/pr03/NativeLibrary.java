@@ -16,6 +16,6 @@ public class NativeLibrary {
 		FunctionType castint32tofloat32 = new FunctionType("cast_int32_to_float32", new Type[]{IntType.Int32}, SizedType.FLOAT32);
 		FunctionType castfloat32toint32 = new FunctionType("cast_float32_to_int32", new Type[]{SizedType.FLOAT32}, IntType.Int32);
 		FunctionType castint8toint32 = new FunctionType("case_int8_to_int32", new Type[]{IntType.Int8}, IntType.Int32);
-		return new FunctionType[]{castint32tofloat32,castfloat32toint32};
+		return new FunctionType[]{castint32tofloat32,castfloat32toint32, castint8toint32};
 	}
 }
