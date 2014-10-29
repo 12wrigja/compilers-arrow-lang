@@ -9,13 +9,13 @@ public class test_Main {
 
 	@Test
 	public void testExample0() {
-		fileCompareTest(new String[] { "examples/0-ex-input.txt" },"a.ast",
+		fileCompareTest(new String[] { "-A","examples/0-ex-input.txt" },"a.ast",
 				"examples/0-ex-output.txt");
 	}
 	
 	@Test
 	public void testExample1() {
-		fileCompareTest(new String[] { "examples/1-ex-input.txt" },"a.ast",
+		fileCompareTest(new String[] {"-A", "examples/1-ex-input.txt" },"a.ast",
 				"examples/1-ex-output.txt");
 	}
 	
@@ -165,6 +165,150 @@ public class test_Main {
 	public void testExample26() {
 		fileCompareTest(new String[] { "examples/26-ex-input.txt" }, "a.ast",
 				"examples/26-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample0() {
+		fileCompareTest(new String[] { "typeExamples/0-ex-input.txt" },"b.ast",
+				"typeExamples/0-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample1() {
+		fileCompareTest(new String[] { "typeExamples/1-ex-input.txt" },"b.ast",
+				"typeExamples/1-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample2() {
+		fileCompareTest(new String[] { "typeExamples/2-ex-input.txt" },"b.ast",
+				"typeExamples/2-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample3() {
+		fileCompareTest(new String[] { "typeExamples/3-ex-input.txt" },"b.ast",
+				"typeExamples/3-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample4() {
+		fileCompareTest(new String[] { "typeExamples/4-ex-input.txt" },"b.ast",
+				"typeExamples/4-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample5() {
+		fileCompareTest(new String[] { "typeExamples/5-ex-input.txt" },"b.ast",
+				"typeExamples/5-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample6() {
+		fileCompareTest(new String[] { "typeExamples/6-ex-input.txt" },"b.ast",
+				"typeExamples/6-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample7() {
+		fileCompareTest(new String[] { "typeExamples/7-ex-input.txt" },"b.ast",
+				"typeExamples/7-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample8() {
+		fileCompareTest(new String[] { "typeExamples/8-ex-input.txt" },"b.ast",
+				"typeExamples/8-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample9() {
+		fileCompareTest(new String[] { "typeExamples/0-ex-input.txt" },"b.ast",
+				"typeExamples/0-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample10() {
+		fileCompareTest(new String[] { "typeExamples/10-ex-input.txt" },"b.ast",
+				"typeExamples/10-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample11() {
+		fileCompareTest(new String[] { "typeExamples/11-ex-input.txt" },"b.ast",
+				"typeExamples/11-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample12() {
+		fileCompareTest(new String[] { "typeExamples/12-ex-input.txt" },"b.ast",
+				"typeExamples/12-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample13() {
+		fileCompareTest(new String[] { "typeExamples/13-ex-input.txt" },"b.ast",
+				"typeExamples/13-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample14() {
+		fileCompareTest(new String[] { "typeExamples/14-ex-input.txt" },"b.ast",
+				"typeExamples/14-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample15() {
+		fileCompareTest(new String[] { "typeExamples/15-ex-input.txt" },"b.ast",
+				"typeExamples/15-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample16() {
+		fileCompareTest(new String[] { "typeExamples/16-ex-input.txt" },"b.ast",
+				"typeExamples/16-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample17() {
+		fileCompareTest(new String[] { "typeExamples/17-ex-input.txt" },"b.ast",
+				"typeExamples/17-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample18() {
+		fileCompareTest(new String[] { "typeExamples/18-ex-input.txt" },"b.ast",
+				"typeExamples/18-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample19() {
+		fileCompareTest(new String[] { "typeExamples/19-ex-input.txt" },"b.ast",
+				"typeExamples/19-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample20() {
+		fileCompareTest(new String[] { "typeExamples/20-ex-input.txt" },"b.ast",
+				"typeExamples/20-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample21() {
+		fileCompareTest(new String[] { "typeExamples/21-ex-input.txt" },"b.ast",
+				"typeExamples/21-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample22() {
+		fileCompareTest(new String[] { "typeExamples/22-ex-input.txt" },"b.ast",
+				"typeExamples/22-ex-output.txt");
+	}
+	
+	@Test
+	public void testTypeExample23() {
+		fileCompareTest(new String[] { "typeExamples/23-ex-input.txt" },"b.ast",
+				"typeExamples/23-ex-output.txt");
 	}
 	
 	/*@Test
