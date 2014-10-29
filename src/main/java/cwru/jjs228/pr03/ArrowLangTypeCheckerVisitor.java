@@ -1,5 +1,7 @@
 package cwru.jjs228.pr03;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cwru.jjs228.pr03.SymbolTable.SymbolTableException;
@@ -30,19 +32,19 @@ public class ArrowLangTypeCheckerVisitor {
 	}
 
 	public void visitIntConstant(TypedNode node) {
-		node.type = IntType.Int32;
+		node.type = Type.Int32;
 	}
 
 	public void visitFloatConstant(TypedNode node) {
-		node.type = SizedType.FLOAT32;
+		node.type = Type.FLOAT32;
 	}
 
 	public void visitBoolConstant(TypedNode node) {
-		node.type = SizedType.BOOLEAN;
+		node.type = Type.BOOLEAN;
 	}
 
 	public void visitStringConstant(TypedNode node) {
-		node.type = SizedType.STRING;
+		node.type = Type.STRING;
 	}
 
 	public void visitSymbol(TypedNode node) throws TypeCheckingException {
@@ -64,12 +66,12 @@ public class ArrowLangTypeCheckerVisitor {
 		boolean allUnits = true;
 		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
 			visitStmt(kid);
-			if (kid.type != SizedType.UNIT) {
+			if (kid.type != Type.UNIT) {
 				allUnits = false;
 			}
 		}
 		if (allUnits) {
-			node.type = SizedType.UNIT;
+			node.type = Type.UNIT;
 		} else {
 			throw new TypeCheckingException(
 					"Stmts children are not all unit type. Unable to type-check.");
@@ -116,12 +118,112 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitFuncDefStmt(TypedNode node) {
+	public void visitFuncDefStmt(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// Name
+		// Parameters
+		// Return Type
+		// Block
 
+		// Push a new context for the scope of function
+		context.push();
+
+		List<TypedNode> children = node.kids;
+
+		// Kid 0 should be the name. Check and see if it is undefined.
+		TypedNode nameNode = children.get(0);
+		String variableName = nameNode.value.toString();
+		if (context.isDefined(variableName)) {
+			throw new TypeCheckingException("Variable " + variableName
+					+ "is already defined.");
+		}
+
+		// Child 2 should be the parameters.
+		TypedNode parameters = children.get(1);
+		visitParameters(parameters);
+
+		// Child 3 should be the return type
+		TypedNode returnNode = children.get(2);
+		visitReturnType(returnNode);
+		context.put("Return", returnNode.type);
+
+		// Child 4 should be the function's block.
+		TypedNode block = children.get(3);
+		visitBlock(block);
+		block.type = Type.UNIT;
+
+		nameNode.type = new Type("fn" + parameters.type.name + "->"
+				+ returnNode.type.name);
+
+		// Pop context
+		context.pop();
+
+		// Set the type of the entire short declaration statement to unit.
+		node.type = Type.UNIT;
 	}
 
-	public void visitReturn(TypedNode node) {
+	public void visitParameters(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		List<String> paramTypes = new ArrayList<String>();
+		List<TypedNode> children = node.kids;
+		for (TypedNode kid : children) {
+			visitParameter(kid);
+			paramTypes.add(kid.type.name);
+		}
+		node.type = new Type(Arrays.deepToString(paramTypes.toArray())
+				.replace("[", "(").replace("]", ")"));
+	}
 
+	public void visitParameter(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		List<TypedNode> children = node.kids;
+		String paramName = children.get(0).value.toString();
+
+		if (context.isLocallyDefined(paramName)) {
+			throw new TypeCheckingException("The parameter with name "
+					+ paramName + " is already defined.");
+		}
+
+		TypedNode typeNode = children.get(1);
+		visitType(typeNode);
+
+		context.put(paramName, typeNode.type);
+		node.type = typeNode.type;
+	}
+
+	public void visitType(TypedNode node) {
+		TypedNode typeName = (TypedNode) node.kids.get(0);
+		visitTypeName(typeName);
+		node.type = typeName.type;
+	}
+
+	public void visitTypeName(TypedNode node) {
+		node.type = Type.typeForString(node.value.toString());
+	}
+
+	public void visitReturnType(TypedNode node) {
+		TypedNode typeNode = (TypedNode) node.kids.get(0);
+		visitType(typeNode);
+		node.type = typeNode.type;
+	}
+
+	public void visitReturn(TypedNode node) throws TypeCheckingException {
+		TypedNode typeNode = (TypedNode) node.kids.get(0);
+		visitType(typeNode);
+		node.type = typeNode.type;
+
+		// Get current return type from context
+		if (context.isLocallyDefined("Return")) {
+			Type returnType = context.get("Return");
+			if (returnType != node.type) {
+				throw new TypeCheckingException(
+						"Mismatching return types: expected " + returnType.name
+								+ " but got " + node.type.name);
+			}
+		} else {
+			throw new TypeCheckingException(
+					"No defined return type for this context.");
+		}
 	}
 
 	public void visitDeclStmt(TypedNode node) {
@@ -151,12 +253,13 @@ public class ArrowLangTypeCheckerVisitor {
 
 		// Set the type of the name node to the type of the expression
 		nameNode.type = expressionNode.type;
-		
+
 		// Set the type of the entire short declaration statement to unit.
-		node.type = SizedType.UNIT;
+		node.type = Type.UNIT;
 	}
 
-	public void visitAssignStmt(TypedNode node) throws TypeCheckingException, SymbolTableException {
+	public void visitAssignStmt(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
 		List<TypedNode> children = node.kids;
 
 		// Kid 0 should be the name. Check and see if it is undefined.
@@ -172,18 +275,29 @@ public class ArrowLangTypeCheckerVisitor {
 		TypedNode expressionNode = children.get(1);
 		visitExpression(expressionNode);
 
-		// Retrieve the variable's type and see if the type is incompatible with the expression's type.
+		// Retrieve the variable's type and see if the type is incompatible with
+		// the expression's type.
 		Type variableType = context.get(variableName);
-		
-		if(variableType != expressionNode.type){
-			throw new TypeCheckingException("Type mismatch: cannot convert from "+expressionNode.type+" to "+variableType);
+
+		if (variableType != expressionNode.type) {
+			throw new TypeCheckingException(
+					"Type mismatch: cannot convert from " + expressionNode.type
+							+ " to " + variableType);
 		}
-		
+
 		// Set the type of the name node to the type of the expression
 		nameNode.type = expressionNode.type;
-		
+
 		// Set the type of the entire short declaration statement to unit.
-		node.type = SizedType.UNIT;
+		node.type = Type.UNIT;
+	}
+
+	public void visitBooleanExpr(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// BooleanExpr has only one child.
+		TypedNode decendant = (TypedNode) node.kids.get(0);
+		visit(decendant);
+		node.type = decendant.type;
 	}
 
 	public void visitIfElseStmt(TypedNode node) {
@@ -224,8 +338,15 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitBlock(TypedNode node) {
-
+	public void visitBlock(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		context.push();
+		List<TypedNode> kids = node.kids;
+		for (TypedNode kid : kids) {
+			visit(kid);
+		}
+		node.type = Type.UNIT;
+		context.pop();
 	}
 
 	public void visitDeclExpr(TypedNode node) {
@@ -236,28 +357,81 @@ public class ArrowLangTypeCheckerVisitor {
 
 	}
 
-	public void visitBooleanExpr(TypedNode node) {
-
+	public void visitAnd(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// And has two children, have to be boolean
+		List<TypedNode> children = node.kids;
+		TypedNode operand1 = children.get(0);
+		TypedNode operand2 = children.get(1);
+		visit(operand1);
+		visit(operand2);
+		if (operand1.type != Type.BOOLEAN
+				|| operand2.type != Type.BOOLEAN) {
+			throw new TypeCheckingException(
+					"An operand for AND is not a boolean");
+		} else {
+			node.type = Type.BOOLEAN;
+		}
 	}
 
-	public void visitAnd(TypedNode node) {
-
+	public void visitOr(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// Or has two children, have to be boolean
+		List<TypedNode> children = node.kids;
+		TypedNode operand1 = children.get(0);
+		TypedNode operand2 = children.get(1);
+		visit(operand1);
+		visit(operand2);
+		if (operand1.type != Type.BOOLEAN
+				|| operand2.type != Type.BOOLEAN) {
+			throw new TypeCheckingException(
+					"An operand for OR is not a boolean");
+		} else {
+			node.type = Type.BOOLEAN;
+		}
 	}
 
-	public void visitOr(TypedNode node) {
-
+	public void visitNegateBoolean(TypedNode node)
+			throws TypeCheckingException, SymbolTableException {
+		// And has two children, have to be boolean
+		List<TypedNode> children = node.kids;
+		TypedNode operand1 = children.get(0);
+		visit(operand1);
+		if (operand1.type != Type.BOOLEAN) {
+			throw new TypeCheckingException(
+					"The operand for NEGATE is not a boolean");
+		} else {
+			node.type = Type.BOOLEAN;
+		}
 	}
 
-	public void visitNegateBoolean(TypedNode node) {
-
-	}
-
-	public void visitCmpOp(TypedNode node) {
-
+	public void visitCmpOp(TypedNode node) throws TypeCheckingException, SymbolTableException {
+		// Comparisons have two children, must have matching types from set
+		// int32, uint32, int8, unit8
+		List<TypedNode> children = node.kids;
+		TypedNode operand1 = children.get(0);
+		TypedNode operand2 = children.get(1);
+		visit(operand1);
+		visit(operand2);
+		boolean operand1IsNum = Type.isOneOfType(operand1.type, new Type[]{Type.Int32,Type.Int8,Type.UInt32,Type.UInt8});
+		boolean operand2IsNum = Type.isOneOfType(operand2.type, new Type[]{Type.Int32,Type.Int8,Type.UInt32,Type.UInt8});
+		
+		if (operand1.type != operand2.type) {
+			throw new TypeCheckingException(
+					"Comparison Operands do not have matching types: "+operand1.type+" not equal "+operand2.type);
+		} else if (!operand1IsNum){ 
+			throw new TypeCheckingException(
+					"Operand 1 is not a valid comparison type. Recieved: "+operand1.type);
+		}else if (!operand2IsNum){
+			throw new TypeCheckingException(
+					"Operand 2 is not a valid comparison type. Recieved: "+operand2.type);
+		}else{
+			node.type = Type.BOOLEAN;
+		}
 	}
 
 	public void visitCall(TypedNode node) {
-
+		
 	}
 
 	public void visitCast(TypedNode node) {
