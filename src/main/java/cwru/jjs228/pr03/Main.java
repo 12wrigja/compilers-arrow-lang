@@ -123,7 +123,7 @@ class Main {
 		if (line.hasOption(ASTOption.getLongOpt())) {
 			String traversal = preOrderTraverse(ast, "");
 			// System.out.println((traversal.isEmpty())?"No traversal data.":traversal);
-			FileWriter writer = new FileWriter(outputFileName + ".ast");
+			FileWriter writer = new FileWriter(outputFileName);
 			writer.write(traversal);
 			writer.flush();
 			writer.close();
@@ -142,7 +142,7 @@ class Main {
 		
 		if(line.hasOption(typedASTOption.getLongOpt())) {
 			String traversal = preOrderTraverseType(typedAst, "");
-			FileWriter writer = new FileWriter(outputFileName + ".ast");
+			FileWriter writer = new FileWriter(outputFileName);
 			writer.write(traversal);
 			writer.flush();
 			writer.close();
