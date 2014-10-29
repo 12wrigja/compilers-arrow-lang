@@ -56,9 +56,11 @@ import cwru.jjs228.pr03.ArrowLangParser.WhileStmtContext;
  * @author joseph satterfield james wright
  *
  */
+@SuppressWarnings("rawtypes")
 public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		implements ArrowLangVisitor<Node> {
 
+	
 	@Override
 	/**
 	 * Visits a call node in a parse tree for Arrowlang
@@ -67,11 +69,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * If the call has no parameters, a null node is created for processing
 	 */
 	public Node visitCall(CallContext ctx) {
-		Node symbol = visit(ctx.NAME());
+		Node<?> symbol = visit(ctx.NAME());
 		if (symbol != null) {
 			symbol.label = "Symbol";
 		}
-		Node callParams = visit(ctx.callParams());
+		Node<?> callParams = visit(ctx.callParams());
 		if (callParams == null) {
 			callParams = new Node("Params");
 		}
@@ -88,12 +90,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	and the AndExpr* node is returned.
 	 */
 	public Node visitAndExpr(AndExprContext ctx) {
-		Node notExpr = visit(ctx.notExpr());
-		Node andExprRem = visit(ctx.andExprRem());
+		Node<?> notExpr = visit(ctx.notExpr());
+		Node<?> andExprRem = visit(ctx.andExprRem());
 		if (andExprRem == null) {
 			return notExpr;
 		}
-		Node lastOp = andExprRem;
+		Node<?> lastOp = andExprRem;
 		while (lastOp != null && lastOp.kids.size() != 1) {
 			lastOp = (Node) lastOp.kids.get(0);
 		}
@@ -108,18 +110,18 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	ParamDecls, Type, ReturnType, and Block
 	 */
 	public Node visitFuncDefStmt(FuncDefStmtContext ctx) {
-		Node name = visit(ctx.NAME());
+		Node<?> name = visit(ctx.NAME());
 		name.label = "Name";
-		Node paramDecls = visit(ctx.paramDecls());
+		Node<?> paramDecls = visit(ctx.paramDecls());
 		if (paramDecls == null) {
 			paramDecls = new Node("ParamDecls");
 		}
-		Node typeSpec = visit(ctx.typeSpec());
+		Node<?> typeSpec = visit(ctx.typeSpec());
 		if (typeSpec == null) {
-			typeSpec = wrap("Type", new Node("unit", "TypeName"));
+			typeSpec = wrap("Type", new Node<String>("unit", "TypeName"));
 		}
 		typeSpec = wrap("ReturnType", typeSpec);
-		Node block = visit(ctx.block());
+		Node<?> block = visit(ctx.block());
 		return minimize("FuncDef", name, paramDecls, typeSpec, block);
 	}
 
@@ -145,8 +147,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	children tstmt and stmts
 	 */
 	public Node visitStmts(StmtsContext ctx) {
-		Node tstmt = visit(ctx.tStmt());
-		Node stmts = visit(ctx.stmts());
+		Node<?> tstmt = visit(ctx.tStmt());
+		Node<?> stmts = visit(ctx.stmts());
 		return minimize("Stmts", tstmt, stmts);
 	}
 
@@ -158,7 +160,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * If not, returns a node with label return and no children
 	 */
 	public Node visitReturnStmt(ReturnStmtContext ctx) {
-		Node expr = visit(ctx.expr());
+		Node<?> expr = visit(ctx.expr());
 		if (expr != null) {
 			return minimize("Return", expr);
 		} else {
@@ -174,8 +176,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	the return statement
 	 */
 	public Node visitBlock(BlockContext ctx) {
-		Node blockStmts = visit(ctx.blockStmts());
-		Node returnStmt = visit(ctx.returnStmt());
+		Node<?> blockStmts = visit(ctx.blockStmts());
+		Node<?> returnStmt = visit(ctx.returnStmt());
 		return minimize("Block", blockStmts, returnStmt);
 	}
 
@@ -197,9 +199,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	BooleanExprNode.
 	 */
 	public Node visitBooleanTerm(BooleanTermContext ctx) {
-		Node cmpExpr = visit(ctx.cmpExpr());
-		Node booleanConstant = visit(ctx.booleanConstant());
-		Node booleanExpr = visit(ctx.booleanExpr());
+		Node<?> cmpExpr = visit(ctx.cmpExpr());
+		Node<?> booleanConstant = visit(ctx.booleanConstant());
+		Node<?> booleanExpr = visit(ctx.booleanExpr());
 		return minimize(null, cmpExpr, booleanConstant, booleanExpr);
 	}
 
@@ -214,8 +216,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	so that all parameters are on the level directly below Params
 	 */
 	public Node visitCallParamsRem(CallParamsRemContext ctx) {
-		Node expr = visit(ctx.expr());
-		Node callParamsRem = visit(ctx.callParamsRem());
+		Node<?> expr = visit(ctx.expr());
+		Node<?> callParamsRem = visit(ctx.callParamsRem());
 		return minimize(null, expr, callParamsRem);
 	}
 
@@ -228,8 +230,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	due to the null label.
 	 */
 	public Node visitAtomic(AtomicContext ctx) {
-		Node valueExpr = visit(ctx.valueExpr());
-		Node arithExpr = visit(ctx.arithExpr());
+		Node<?> valueExpr = visit(ctx.valueExpr());
+		Node<?> arithExpr = visit(ctx.arithExpr());
 		return minimize(null, valueExpr, arithExpr);
 	}
 
@@ -272,12 +274,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	It then returns the BooleanExpr*
 	 */
 	public Node visitBooleanExpr(BooleanExprContext ctx) {
-		Node andExpr = visit(ctx.andExpr());
-		Node booleanExprRem = visit(ctx.booleanExprRem());
+		Node<?> andExpr = visit(ctx.andExpr());
+		Node<?> booleanExprRem = visit(ctx.booleanExprRem());
 		if (booleanExprRem == null) {
 			return andExpr;
 		}
-		Node lastChild = booleanExprRem;
+		Node<?> lastChild = booleanExprRem;
 		while (lastChild != null && lastChild.kids.size() != 1) {
 			lastChild = (Node) lastChild.kids.get(0);
 		}
@@ -299,16 +301,16 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	operator as a label and the visited negate as a child.
 	 */
 	public Node visitMulDivRem(MulDivRemContext ctx) {
-		Node mult = visit(ctx.MULT());
-		Node div = visit(ctx.DIV());
-		Node mod = visit(ctx.MOD());
-		Node negate = visit(ctx.negate());
-		Node mulDivRem = visit(ctx.mulDivRem());
+		Node<?> mult = visit(ctx.MULT());
+		Node<?> div = visit(ctx.DIV());
+		Node<?> mod = visit(ctx.MOD());
+		Node<?> negate = visit(ctx.negate());
+		Node<?> mulDivRem = visit(ctx.mulDivRem());
 		if (mult != null) {
 			if (mulDivRem == null) {
 				return minimize("*", mulDivRem, negate);
 			} else {
-				Node lastOp = mulDivRem;
+				Node<?> lastOp = mulDivRem;
 				while (lastOp != null && lastOp.kids.size() != 1) {
 					lastOp = (Node) lastOp.kids.get(0);
 				}
@@ -319,7 +321,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 			if (mulDivRem == null) {
 				return minimize("/", mulDivRem, negate);
 			} else {
-				Node lastOp = mulDivRem;
+				Node<?> lastOp = mulDivRem;
 				while (lastOp != null && lastOp.kids.size() != 1) {
 					lastOp = (Node) lastOp.kids.get(0);
 				}
@@ -330,7 +332,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 			if (mulDivRem == null) {
 				return minimize("%", mulDivRem, negate);
 			} else {
-				Node lastOp = mulDivRem;
+				Node<?> lastOp = mulDivRem;
 				while (lastOp != null && lastOp.kids.size() != 1) {
 					lastOp = (Node) lastOp.kids.get(0);
 				}
@@ -351,11 +353,11 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	using the pullup method.
 	 */
 	public Node visitParamDecls(ParamDeclsContext ctx) {
-		Node name = visit(ctx.NAME());
+		Node<?> name = visit(ctx.NAME());
 		name.label = "Name";
-		Node typeSpec = visit(ctx.typeSpec());
-		Node paramDeclsRem = visit(ctx.paramDeclsRem());
-		Node paramDecl = new Node("ParamDecl");
+		Node<?> typeSpec = visit(ctx.typeSpec());
+		Node<?> paramDeclsRem = visit(ctx.paramDeclsRem());
+		Node<?> paramDecl = new Node("ParamDecl");
 		paramDecl.addkid(name);
 		paramDecl.addkid(typeSpec);
 		List<Node> allParamDecls = new ArrayList<Node>();
@@ -378,8 +380,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	label of Params and children, all of the parameter expressions.
 	 */
 	public Node visitCallParams(CallParamsContext ctx) {
-		Node expr = visit(ctx.expr());
-		Node callParamsRem = visit(ctx.callParamsRem());
+		Node<?> expr = visit(ctx.expr());
+		Node<?> callParamsRem = visit(ctx.callParamsRem());
 		return minimize("Params", expr, callParamsRem);
 	}
 
@@ -392,10 +394,10 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	node is minimized.
 	 */
 	public Node visitDeclStmt(DeclStmtContext ctx) {
-		Node name = visit(ctx.NAME());
+		Node<?> name = visit(ctx.NAME());
 		name.label = "Name";
-		Node typeSpec = visit(ctx.typeSpec());
-		Node expr = visit(ctx.expr());
+		Node<?> typeSpec = visit(ctx.typeSpec());
+		Node<?> expr = visit(ctx.expr());
 		if (typeSpec == null) {
 			return minimize("ShortDecl", name, expr);
 		} else {
@@ -412,10 +414,10 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	a BooleanExpr node to meet the AST grammar
 	 */
 	public Node visitIfStmt(IfStmtContext ctx) {
-		Node booleanExpr = visit(ctx.booleanExpr());
+		Node<?> booleanExpr = visit(ctx.booleanExpr());
 		booleanExpr = wrap("BooleanExpr", booleanExpr);
-		Node block = visit(ctx.block());
-		Node elseIfStmt = visit(ctx.elseIfStmt());
+		Node<?> block = visit(ctx.block());
+		Node<?> elseIfStmt = visit(ctx.elseIfStmt());
 		if (elseIfStmt == null) {
 			elseIfStmt = new Node("ElseIf");
 		}
@@ -430,8 +432,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * Otherwise, returns the booleanTerm node
 	 */
 	public Node visitNotExpr(NotExprContext ctx) {
-		Node excl = visit(ctx.EXCL());
-		Node booleanTerm = visit(ctx.booleanTerm());
+		Node<?> excl = visit(ctx.EXCL());
+		Node<?> booleanTerm = visit(ctx.booleanTerm());
 		if (excl != null) {
 			return minimize("Not", booleanTerm);
 		} else {
@@ -450,8 +452,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	this node from the AST.
 	 */
 	public Node visitNegate(NegateContext ctx) {
-		Node dash = visit(ctx.DASH());
-		Node atomic = visit(ctx.atomic());
+		Node<?> dash = visit(ctx.DASH());
+		Node<?> atomic = visit(ctx.atomic());
 		if (dash != null) {
 			return minimize("Negate", atomic);
 		} else {
@@ -476,20 +478,20 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 */
 	public Node visitConstant(ConstantContext ctx) {
 		if (ctx.INT_CONST() != null) {
-			return new Node(ctx.getText(), "Int");
+			return new Node<Integer>(Integer.parseInt(ctx.getText()), "Int");
 		} else if (ctx.FLOAT_CONST() != null) {
 			String floatAsString = ctx.getText();
 			float floatVal = Float.parseFloat(floatAsString);
 			int intVal = (int) floatVal;
 			if (floatVal == (float) intVal) {
-				return new Node(intVal, "Float");
+				return new Node<Integer>(intVal, "Float");
 			} else {
-				return new Node(floatVal, "Float");
+				return new Node<Float>(floatVal, "Float");
 			}
 		} else if (ctx.STRING_CONST() != null) {
 			String text = ctx.getText();
 			text = text.substring(1, text.length()-1);
-			return new Node(text, "String");
+			return new Node<String>(text, "String");
 		}
 		return null;
 	}
@@ -506,8 +508,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	grammar.
 	 */
 	public Node visitValueExpr(ValueExprContext ctx) {
-		Node constant = visit(ctx.constant());
-		Node symbolValueExpr = visit(ctx.symbolValueExpr());
+		Node<?> constant = visit(ctx.constant());
+		Node<?> symbolValueExpr = visit(ctx.symbolValueExpr());
 		return minimize(null, constant, symbolValueExpr);
 	}
 
@@ -519,9 +521,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 */
 	public Node visitBooleanConstant(BooleanConstantContext ctx) {
 		if (ctx.TRUE() != null) {
-			return new Node("true", "Boolean");
+			return new Node<Boolean>(true, "Boolean");
 		} else if (ctx.FALSE() != null) {
-			return new Node("false", "Boolean");
+			return new Node<Boolean>(false, "Boolean");
 		}
 		return null;
 	}
@@ -534,12 +536,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 
 	 */
 	public Node visitMulDiv(MulDivContext ctx) {
-		Node negate = visit(ctx.negate());
-		Node mulDivRem = visit(ctx.mulDivRem());
+		Node<?> negate = visit(ctx.negate());
+		Node<?> mulDivRem = visit(ctx.mulDivRem());
 		if (mulDivRem == null) {
 			return negate;
 		}
-		Node lastChild = mulDivRem;
+		Node<?> lastChild = mulDivRem;
 		while (lastChild != null && lastChild.kids.size() != 1) {
 			lastChild = (Node) lastChild.kids.get(0);
 		}
@@ -549,15 +551,15 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 
 	@Override
 	public Node visitForStmt(ForStmtContext ctx) {
-		Node declStmt = visit(ctx.declStmt());
+		Node<?> declStmt = visit(ctx.declStmt());
 		declStmt = wrap("DeclExpr", declStmt);
-		Node booleanExpr = visit(ctx.booleanExpr());
+		Node<?> booleanExpr = visit(ctx.booleanExpr());
 		booleanExpr = wrap("BooleanExpr", booleanExpr);
-		Node assignmentStmt = visit(ctx.assignStmt());
+		Node<?> assignmentStmt = visit(ctx.assignStmt());
 		if (assignmentStmt != null) {
 			assignmentStmt = wrap("UpdateExpr", assignmentStmt);
 		}
-		Node block = visit(ctx.block());
+		Node<?> block = visit(ctx.block());
 		return minimize("For", declStmt, booleanExpr, assignmentStmt, block);
 	}
 
@@ -570,12 +572,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	because Stmt is not in the AST grammar.
 	 */
 	public Node visitStmt(StmtContext ctx) {
-		Node callStmt = visit(ctx.callStmt());
-		Node declStmt = visit(ctx.declStmt());
-		Node assignStmt = visit(ctx.assignStmt());
-		Node ifStmt = visit(ctx.ifStmt());
-		Node whileStmt = visit(ctx.whileStmt());
-		Node forStmt = visit(ctx.forStmt());
+		Node<?> callStmt = visit(ctx.callStmt());
+		Node<?> declStmt = visit(ctx.declStmt());
+		Node<?> assignStmt = visit(ctx.assignStmt());
+		Node<?> ifStmt = visit(ctx.ifStmt());
+		Node<?> whileStmt = visit(ctx.whileStmt());
+		Node<?> forStmt = visit(ctx.forStmt());
 		return minimize(null, callStmt, declStmt, assignStmt, ifStmt,
 				whileStmt, forStmt);
 	}
@@ -594,12 +596,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 */
 	public Node visitBooleanExprRem(BooleanExprRemContext ctx) {
 		if (ctx.OR(0) != null && ctx.OR(1) != null) {
-			Node andExpr = visit(ctx.andExpr());
-			Node booleanExprRem = visit(ctx.booleanExprRem());
+			Node<?> andExpr = visit(ctx.andExpr());
+			Node<?> booleanExprRem = visit(ctx.booleanExprRem());
 			if (booleanExprRem == null) {
 				return minimize("Or", booleanExprRem, andExpr);
 			} else {
-				Node lastOp = booleanExprRem;
+				Node<?> lastOp = booleanExprRem;
 				while (lastOp != null && lastOp.kids.size() != 1) {
 					lastOp = (Node) lastOp.kids.get(0);
 				}
@@ -619,8 +621,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	into the TStmt's place on the tree.
 	 */
 	public Node visitTStmt(TStmtContext ctx) {
-		Node stmt = visit(ctx.stmt());
-		Node funcDefStmt = visit(ctx.funcDefStmt());
+		Node<?> stmt = visit(ctx.stmt());
+		Node<?> funcDefStmt = visit(ctx.funcDefStmt());
 		return minimize(null, stmt, funcDefStmt);
 	}
 
@@ -636,13 +638,13 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	AndExpr* subtree.
 	 */
 	public Node visitAndExprRem(AndExprRemContext ctx) {
-		Node notExpr = visit(ctx.notExpr());
-		Node andExprRem = visit(ctx.andExprRem());
+		Node<?> notExpr = visit(ctx.notExpr());
+		Node<?> andExprRem = visit(ctx.andExprRem());
 		if (ctx.AND(0) != null && ctx.AND(1) != null) {
 			if (andExprRem == null) {
 				return minimize("And", andExprRem, notExpr);
 			} else {
-				Node lastOp = andExprRem;
+				Node<?> lastOp = andExprRem;
 				while (lastOp != null && lastOp.kids.size() != 1) {
 					lastOp = (Node) lastOp.kids.get(0);
 				}
@@ -663,8 +665,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 
 	 */
 	public Node visitSymbolValueExpr(SymbolValueExprContext ctx) {
-		Node call = visit(ctx.call());
-		Node name = visit(ctx.NAME());
+		Node<?> call = visit(ctx.call());
+		Node<?> name = visit(ctx.NAME());
 		if (name != null) {
 			name.label = "Symbol";
 		}
@@ -678,7 +680,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	the type
 	 */
 	public Node visitTypeName(TypeNameContext ctx) {
-		Node typeName = visit(ctx.NAME());
+		Node<?> typeName = visit(ctx.NAME());
 		typeName.label = "TypeName";
 		return typeName;
 	}
@@ -691,9 +693,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	and Block nodes
 	 */
 	public Node visitWhileStmt(WhileStmtContext ctx) {
-		Node whileNode = visit(ctx.WHILE());
-		Node booleanExpr = visit(ctx.booleanExpr());
-		Node block = visit(ctx.block());
+		Node<?> whileNode = visit(ctx.WHILE());
+		Node<?> booleanExpr = visit(ctx.booleanExpr());
+		Node<?> block = visit(ctx.block());
 		return minimize("While", whileNode, booleanExpr, block);
 	}
 
@@ -704,9 +706,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	a Name node and the expression
 	 */
 	public Node visitAssignStmt(AssignStmtContext ctx) {
-		Node name = visit(ctx.NAME());
+		Node<?> name = visit(ctx.NAME());
 		name.label = "Name";
-		Node expr = visit(ctx.expr());
+		Node<?> expr = visit(ctx.expr());
 		return minimize("AssignStmt", name, expr);
 	}
 
@@ -717,12 +719,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	typeSpec, and paraDeclsRem(if not null)
 	 */
 	public Node visitParamDeclsRem(ParamDeclsRemContext ctx) {
-		Node name = visit(ctx.NAME());
+		Node<?> name = visit(ctx.NAME());
 		if (name != null) {
 			name.label = "Name";
 		}
-		Node typeSpec = visit(ctx.typeSpec());
-		Node paramDeclsRem = visit(ctx.paramDeclsRem());
+		Node<?> typeSpec = visit(ctx.typeSpec());
+		Node<?> paramDeclsRem = visit(ctx.paramDeclsRem());
 		return minimize("ParamDecl", name, typeSpec, paramDeclsRem);
 	}
 
@@ -735,9 +737,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 */
 	public Node visitStart(StartContext ctx) {
 		if (ctx.stmts() != null) {
-			Node result = visit(ctx.stmts());
+			Node<?> result = visit(ctx.stmts());
 			List<Node> topLevelStatements = pullup("Stmts", result);
-			for (Node stmt : topLevelStatements) {
+			for (Node<?> stmt : topLevelStatements) {
 				stmt.label = null;
 			}
 			return minimize("Stmts", topLevelStatements.toArray(new Node[0]));
@@ -752,8 +754,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	Block and IfStmt, if those are not null
 	 */
 	public Node visitElseIfStmt(ElseIfStmtContext ctx) {
-		Node block = visit(ctx.block());
-		Node ifStmt = visit(ctx.ifStmt());
+		Node<?> block = visit(ctx.block());
+		Node<?> ifStmt = visit(ctx.ifStmt());
 		return minimize("ElseIf", block, ifStmt);
 	}
 
@@ -775,8 +777,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	Stmt nodes are on the same level after being minimized.
 	 */
 	public Node visitBlockStmts(BlockStmtsContext ctx) {
-		Node blockStmt = visit(ctx.blockStmt());
-		Node blockStmts = visit(ctx.blockStmts());
+		Node<?> blockStmt = visit(ctx.blockStmt());
+		Node<?> blockStmts = visit(ctx.blockStmts());
 		return minimize(null, blockStmt, blockStmts);
 	}
 
@@ -788,9 +790,9 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	being compared.
 	 */
 	public Node visitCmpExpr(CmpExprContext ctx) {
-		Node arithExpr1 = visit(ctx.arithExpr(0));
-		Node cmpOp = visit(ctx.cmpOp());
-		Node arithExpr2 = visit(ctx.arithExpr(1));
+		Node<?> arithExpr1 = visit(ctx.arithExpr(0));
+		Node<?> cmpOp = visit(ctx.cmpOp());
+		Node<?> arithExpr2 = visit(ctx.arithExpr(1));
 		return minimize(cmpOp.label, arithExpr1, arithExpr2);
 	}
 
@@ -808,15 +810,15 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	is to epsilon
 	 */
 	public Node visitArithExprRem(ArithExprRemContext ctx) {
-		Node plus = visit(ctx.PLUS());
-		Node minus = visit(ctx.DASH());
-		Node mulDiv = visit(ctx.mulDiv());
-		Node arithExprRem = visit(ctx.arithExprRem());
+		Node<?> plus = visit(ctx.PLUS());
+		Node<?> minus = visit(ctx.DASH());
+		Node<?> mulDiv = visit(ctx.mulDiv());
+		Node<?> arithExprRem = visit(ctx.arithExprRem());
 		if (plus != null) {
 			if (arithExprRem == null) {
 				return minimize("+", arithExprRem, mulDiv);
 			} else {
-				Node lastOp = arithExprRem;
+				Node<?> lastOp = arithExprRem;
 				while (lastOp != null && lastOp.kids.size() != 1) {
 					lastOp = (Node) lastOp.kids.get(0);
 				}
@@ -827,7 +829,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 			if (arithExprRem == null) {
 				return minimize("-", arithExprRem, mulDiv);
 			} else {
-				Node lastOp = arithExprRem;
+				Node<?> lastOp = arithExprRem;
 				while (lastOp != null && lastOp.kids.size() != 1) {
 					lastOp = (Node) lastOp.kids.get(0);
 				}
@@ -848,8 +850,8 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	when minimized
 	 */
 	public Node visitBlockStmt(BlockStmtContext ctx) {
-		Node blockStmt = visit(ctx.stmt());
-		Node loopCtrlStmt = visit(ctx.loopControlStmt());
+		Node<?> blockStmt = visit(ctx.stmt());
+		Node<?> loopCtrlStmt = visit(ctx.loopControlStmt());
 		return minimize(null, blockStmt, loopCtrlStmt);
 	}
 
@@ -875,12 +877,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * 	on the tree.
 	 */
 	public Node visitArithExpr(ArithExprContext ctx) {
-		Node mulDiv = visit(ctx.mulDiv());
-		Node arithExprRem = visit(ctx.arithExprRem());
+		Node<?> mulDiv = visit(ctx.mulDiv());
+		Node<?> arithExprRem = visit(ctx.arithExprRem());
 		if (arithExprRem == null) {
 			return mulDiv;
 		}
-		Node lastChild = arithExprRem;
+		Node<?> lastChild = arithExprRem;
 		while (lastChild != null && lastChild.kids.size() != 1) {
 			lastChild = (Node) lastChild.kids.get(0);
 		}
@@ -896,7 +898,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * @return The visited node
 	 */
 	public Node visitTerminal(TerminalNode node) {
-		Node returnNode = new Node(node.getText(),
+		Node<?> returnNode = new Node<String>(node.getText(),
 				ArrowLangLexer.ruleNames[node.getSymbol().getType() - 1]);
 		return (Node) returnNode;
 	}
@@ -906,7 +908,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * is used to add nodes to the AST that are not part of the parse tree.
 	 */
 	private Node wrap(String nodeLabel, Node childNode) {
-		Node newNode = new Node(nodeLabel);
+		Node<?> newNode = new Node(nodeLabel);
 		newNode.addkid(childNode);
 		return newNode;
 	}
@@ -924,11 +926,12 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 	 * @return
 	 */
 	private Node minimize(String nodeLabel, Node... childNodes) {
-		Node newNode = new Node(nodeLabel);
-		for (Node n : childNodes) {
+		Node<?> newNode = new Node(nodeLabel);
+		for (Node<?> n : childNodes) {
 			if (n != null) {
 				if (n.label == null) {
-					for (Node n2 : ((Iterable<Node>) n.kids)) {
+					List<Node<?>> kids = n.kids;
+					for (Node<?> n2 : kids) {
 						newNode.addkid(n2);
 					}
 				} else {
@@ -960,7 +963,7 @@ public class ArrowLangASTVisitor extends AbstractParseTreeVisitor<Node>
 		}
 		int index = 0;
 		while (index < node.kids.size()) {
-			Node kid = (Node) node.kids.get(index);
+			Node<?> kid = (Node) node.kids.get(index);
 			if (kid.label.equals(label)) {
 				allNodesOfType.addAll(pullup(label, kid));
 				node.kids.remove(index);

@@ -26,28 +26,28 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visit(TypedNode node) throws TypeCheckingException,
+	public void visit(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		visitStmts(node);
 	}
 
-	public void visitIntConstant(TypedNode node) {
+	public void visitIntConstant(TypedNode<?> node) {
 		node.type = Type.Int32;
 	}
 
-	public void visitFloatConstant(TypedNode node) {
+	public void visitFloatConstant(TypedNode<?> node) {
 		node.type = Type.FLOAT32;
 	}
 
-	public void visitBoolConstant(TypedNode node) {
+	public void visitBoolConstant(TypedNode<?> node) {
 		node.type = Type.BOOLEAN;
 	}
 
-	public void visitStringConstant(TypedNode node) {
+	public void visitStringConstant(TypedNode<?> node) {
 		node.type = Type.STRING;
 	}
 
-	public void visitSymbol(TypedNode node) throws TypeCheckingException {
+	public void visitSymbol(TypedNode<?> node) throws TypeCheckingException {
 		// Get name of the variable used and check symbol table for it.
 		String variableName = node.value.toString();
 
@@ -61,10 +61,11 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitStmts(TypedNode node) throws TypeCheckingException,
+	public void visitStmts(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		boolean allUnits = true;
-		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
+		List<TypedNode<?>> kids = node.kids;
+		for (TypedNode<?> kid : kids) {
 			visitStmt(kid);
 			if (kid.type != Type.UNIT) {
 				allUnits = false;
@@ -78,7 +79,7 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitStmt(TypedNode node) throws TypeCheckingException,
+	public void visitStmt(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		String name = node.label;
 		switch (name) {
@@ -118,17 +119,17 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitFuncDefStmt(TypedNode node) throws TypeCheckingException,
+	public void visitFuncDefStmt(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// Name
 		// Parameters
 		// Return Type
 		// Block
 
-		List<TypedNode> children = node.kids;
+		List<TypedNode<?>> children = node.kids;
 
 		// Kid 0 should be the name. Check and see if it is undefined.
-		TypedNode nameNode = children.get(0);
+		TypedNode<?> nameNode = children.get(0);
 		String variableName = nameNode.value.toString();
 		if (context.isDefined(variableName)) {
 			throw new TypeCheckingException("Variable " + variableName
@@ -139,16 +140,16 @@ public class ArrowLangTypeCheckerVisitor {
 		context.push();
 
 		// Child 2 should be the parameters.
-		TypedNode parameters = children.get(1);
+		TypedNode<?> parameters = children.get(1);
 		visitParameters(parameters);
 
 		// Child 3 should be the return type
-		TypedNode returnNode = children.get(2);
+		TypedNode<?> returnNode = children.get(2);
 		visitReturnType(returnNode);
 		context.put("Return", returnNode.type);
 
 		// Child 4 should be the function's block.
-		TypedNode block = children.get(3);
+		TypedNode<?> block = children.get(3);
 		visitBlock(block);
 		block.type = Type.UNIT;
 
@@ -162,11 +163,11 @@ public class ArrowLangTypeCheckerVisitor {
 		node.type = Type.UNIT;
 	}
 
-	public void visitParameters(TypedNode node) throws TypeCheckingException,
+	public void visitParameters(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		List<String> paramTypes = new ArrayList<String>();
-		List<TypedNode> children = node.kids;
-		for (TypedNode kid : children) {
+		List<TypedNode<?>> children = node.kids;
+		for (TypedNode<?> kid : children) {
 			visitParameter(kid);
 			paramTypes.add(kid.type.name);
 		}
@@ -174,9 +175,9 @@ public class ArrowLangTypeCheckerVisitor {
 				.replace("[", "(").replace("]", ")"));
 	}
 
-	public void visitParameter(TypedNode node) throws TypeCheckingException,
+	public void visitParameter(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
-		List<TypedNode> children = node.kids;
+		List<TypedNode<?>> children = node.kids;
 		String paramName = children.get(0).value.toString();
 
 		if (context.isLocallyDefined(paramName)) {
@@ -184,31 +185,31 @@ public class ArrowLangTypeCheckerVisitor {
 					+ paramName + " is already defined.");
 		}
 
-		TypedNode typeNode = children.get(1);
+		TypedNode<?> typeNode = children.get(1);
 		visitType(typeNode);
 
 		context.put(paramName, typeNode.type);
 		node.type = typeNode.type;
 	}
 
-	public void visitType(TypedNode node) {
-		TypedNode typeName = (TypedNode) node.kids.get(0);
+	public void visitType(TypedNode<?> node) {
+		TypedNode<?> typeName = (TypedNode<?>) node.kids.get(0);
 		visitTypeName(typeName);
 		node.type = typeName.type;
 	}
 
-	public void visitTypeName(TypedNode node) {
+	public void visitTypeName(TypedNode<?> node) {
 		node.type = Type.typeForString(node.value.toString());
 	}
 
-	public void visitReturnType(TypedNode node) {
-		TypedNode typeNode = (TypedNode) node.kids.get(0);
+	public void visitReturnType(TypedNode<?> node) {
+		TypedNode<?> typeNode = (TypedNode<?>) node.kids.get(0);
 		visitType(typeNode);
 		node.type = typeNode.type;
 	}
 
-	public void visitReturn(TypedNode node) throws TypeCheckingException {
-		TypedNode typeNode = (TypedNode) node.kids.get(0);
+	public void visitReturn(TypedNode<?> node) throws TypeCheckingException {
+		TypedNode<?> typeNode = (TypedNode<?>) node.kids.get(0);
 		visitType(typeNode);
 		node.type = typeNode.type;
 
@@ -226,17 +227,17 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitDeclStmt(TypedNode node) {
+	public void visitDeclStmt(TypedNode<?> node) {
 		throw new UnsupportedOperationException("DeclStmt not implemented yet.");
 	}
 
-	public void visitShortDeclStmt(TypedNode node)
+	public void visitShortDeclStmt(TypedNode<?> node)
 			throws TypeCheckingException, SymbolTableException {
 
-		List<TypedNode> children = node.kids;
+		List<TypedNode<?>> children = node.kids;
 
 		// Kid 0 should be the name. Check and see if it is undefined.
-		TypedNode nameNode = children.get(0);
+		TypedNode<?> nameNode = children.get(0);
 		String variableName = nameNode.value.toString();
 		if (context.isDefined(variableName)) {
 			throw new TypeCheckingException("Variable " + variableName
@@ -245,7 +246,7 @@ public class ArrowLangTypeCheckerVisitor {
 
 		// Variable is undefined at this point.
 		// Compute variable type.
-		TypedNode expressionNode = children.get(1);
+		TypedNode<?> expressionNode = children.get(1);
 		visitExpression(expressionNode);
 
 		// Add the variable to the symbol table with the defined type.
@@ -258,12 +259,12 @@ public class ArrowLangTypeCheckerVisitor {
 		node.type = Type.UNIT;
 	}
 
-	public void visitAssignStmt(TypedNode node) throws TypeCheckingException,
+	public void visitAssignStmt(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
-		List<TypedNode> children = node.kids;
+		List<TypedNode<?>> children = node.kids;
 
 		// Kid 0 should be the name. Check and see if it is undefined.
-		TypedNode nameNode = children.get(0);
+		TypedNode<?> nameNode = children.get(0);
 		String variableName = nameNode.value.toString();
 		if (!context.isDefined(variableName)) {
 			throw new TypeCheckingException("Variable " + variableName
@@ -272,7 +273,7 @@ public class ArrowLangTypeCheckerVisitor {
 
 		// Variable is undefined at this point.
 		// Compute variable type.
-		TypedNode expressionNode = children.get(1);
+		TypedNode<?> expressionNode = children.get(1);
 		visitExpression(expressionNode);
 
 		// Retrieve the variable's type and see if the type is incompatible with
@@ -292,30 +293,30 @@ public class ArrowLangTypeCheckerVisitor {
 		node.type = Type.UNIT;
 	}
 
-	public void visitBooleanExpr(TypedNode node) throws TypeCheckingException,
+	public void visitBooleanExpr(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// BooleanExpr has only one child.
-		TypedNode decendant = (TypedNode) node.kids.get(0);
+		TypedNode<?> decendant = (TypedNode<?>) node.kids.get(0);
 		visit(decendant);
 		node.type = decendant.type;
 	}
 
-	public void visitIfElseStmt(TypedNode node) {
+	public void visitIfElseStmt(TypedNode<?> node) {
 		throw new RuntimeException("IfElse not implemented yet.");
 	}
 
-	public void visitForStmt(TypedNode node) throws TypeCheckingException,
+	public void visitForStmt(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
-		List<TypedNode> children = node.kids;
+		List<TypedNode<?>> children = node.kids;
 
 		// Push a new context so that the variables in the declaration statement
 		// are visible to the rest of the block.
 		context.push();
 
-		TypedNode declExpr = children.get(0);
-		TypedNode booleanExpr = children.get(1);
-		TypedNode updateExpr = children.get(2);
-		TypedNode block = children.get(3);
+		TypedNode<?> declExpr = children.get(0);
+		TypedNode<?> booleanExpr = children.get(1);
+		TypedNode<?> updateExpr = children.get(2);
+		TypedNode<?> block = children.get(3);
 
 		visit(declExpr);
 		visit(booleanExpr);
@@ -335,7 +336,7 @@ public class ArrowLangTypeCheckerVisitor {
 		context.pop();
 	}
 
-	public void visitExpression(TypedNode node) throws TypeCheckingException,
+	public void visitExpression(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		switch (node.label) {
 		case "+": /* Type-Check as an addition */
@@ -366,21 +367,21 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitBlock(TypedNode node) throws TypeCheckingException,
+	public void visitBlock(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		context.push();
-		List<TypedNode> kids = node.kids;
-		for (TypedNode kid : kids) {
+		List<TypedNode<?>> kids = node.kids;
+		for (TypedNode<?> kid : kids) {
 			visit(kid);
 		}
 		node.type = Type.UNIT;
 		context.pop();
 	}
 
-	public void visitDeclExpr(TypedNode node) throws TypeCheckingException,
+	public void visitDeclExpr(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// DeclExpr should have a single child with a unit type.
-		TypedNode child = (TypedNode) node.kids.get(0);
+		TypedNode<?> child = (TypedNode<?>) node.kids.get(0);
 		visit(child);
 		if (child.type != Type.UNIT) {
 			throw new TypeCheckingException(
@@ -390,10 +391,10 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitUpdateExpr(TypedNode node) throws TypeCheckingException,
+	public void visitUpdateExpr(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// UpdateExpr should have a single child with a unit type.
-		TypedNode child = (TypedNode) node.kids.get(0);
+		TypedNode<?> child = (TypedNode<?>) node.kids.get(0);
 		visit(child);
 		if (child.type != Type.UNIT) {
 			throw new TypeCheckingException(
@@ -403,12 +404,12 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitAnd(TypedNode node) throws TypeCheckingException,
+	public void visitAnd(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// And has two children, have to be boolean
-		List<TypedNode> children = node.kids;
-		TypedNode operand1 = children.get(0);
-		TypedNode operand2 = children.get(1);
+		List<TypedNode<?>> children = node.kids;
+		TypedNode<?> operand1 = children.get(0);
+		TypedNode<?> operand2 = children.get(1);
 		visit(operand1);
 		visit(operand2);
 		if (operand1.type != Type.BOOLEAN || operand2.type != Type.BOOLEAN) {
@@ -419,12 +420,12 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitOr(TypedNode node) throws TypeCheckingException,
+	public void visitOr(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// Or has two children, have to be boolean
-		List<TypedNode> children = node.kids;
-		TypedNode operand1 = children.get(0);
-		TypedNode operand2 = children.get(1);
+		List<TypedNode<?>> children = node.kids;
+		TypedNode<?> operand1 = children.get(0);
+		TypedNode<?> operand2 = children.get(1);
 		visit(operand1);
 		visit(operand2);
 		if (operand1.type != Type.BOOLEAN || operand2.type != Type.BOOLEAN) {
@@ -435,11 +436,11 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitNegateBoolean(TypedNode node)
+	public void visitNegateBoolean(TypedNode<?> node)
 			throws TypeCheckingException, SymbolTableException {
 		// And has two children, have to be boolean
-		List<TypedNode> children = node.kids;
-		TypedNode operand1 = children.get(0);
+		List<TypedNode<?>> children = node.kids;
+		TypedNode<?> operand1 = children.get(0);
 		visit(operand1);
 		if (operand1.type != Type.BOOLEAN) {
 			throw new TypeCheckingException(
@@ -449,13 +450,13 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitCmpOp(TypedNode node) throws TypeCheckingException,
+	public void visitCmpOp(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// Comparisons have two children, must have matching types from set
 		// int32, uint32, int8, unit8
-		List<TypedNode> children = node.kids;
-		TypedNode operand1 = children.get(0);
-		TypedNode operand2 = children.get(1);
+		List<TypedNode<?>> children = node.kids;
+		TypedNode<?> operand1 = children.get(0);
+		TypedNode<?> operand2 = children.get(1);
 		visit(operand1);
 		visit(operand2);
 		boolean operand1IsNum = Type.isOneOfType(operand1.type, new Type[] {
@@ -480,12 +481,12 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitCall(TypedNode node) throws TypeCheckingException,
+	public void visitCall(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// Get name of function, see if it exists.
 		// Child 1 is the function name.
-		List<TypedNode> children = node.kids;
-		TypedNode nameNode = children.get(0);
+		List<TypedNode<?>> children = node.kids;
+		TypedNode<?> nameNode = children.get(0);
 		String callFunctionName = nameNode.value.toString();
 
 		if (Type.isFunctionCast(callFunctionName)) {
@@ -500,7 +501,7 @@ public class ArrowLangTypeCheckerVisitor {
 
 			// Compute provided parameter types compare against function types
 			// Child 2 is the parameters
-			TypedNode paramsNode = children.get(1);
+			TypedNode<?> paramsNode = children.get(1);
 			visit(paramsNode);
 			String serializedParameters = paramsNode.type.name;
 			// If the function's type name contains the parameters string, then
@@ -520,18 +521,18 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitCast(TypedNode node) {
+	public void visitCast(TypedNode<?> node) {
 		throw new RuntimeException("Method not implemented yet!");
 	}
 
-	public void visitArithOp(TypedNode node) throws TypeCheckingException,
+	public void visitArithOp(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// Arithmetic Operators have two children, must have matching types from
 		// set
 		// int32, uint32, int8, unit8
-		List<TypedNode> children = node.kids;
-		TypedNode operand1 = children.get(0);
-		TypedNode operand2 = children.get(1);
+		List<TypedNode<?>> children = node.kids;
+		TypedNode<?> operand1 = children.get(0);
+		TypedNode<?> operand2 = children.get(1);
 		visit(operand1);
 		visit(operand2);
 		boolean operand1IsNum = Type.isOneOfType(operand1.type, new Type[] {
@@ -556,11 +557,11 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitNegateArith(TypedNode node) throws TypeCheckingException,
+	public void visitNegateArith(TypedNode<?> node) throws TypeCheckingException,
 			SymbolTableException {
 		// And has two children, have to be boolean
-		List<TypedNode> children = node.kids;
-		TypedNode operand1 = children.get(0);
+		List<TypedNode<?>> children = node.kids;
+		TypedNode<?> operand1 = children.get(0);
 		visit(operand1);
 		if (Type.isOneOfType(operand1.type, new Type[] { Type.Int32, Type.Int8,
 				Type.UInt32, Type.UInt8 })) {

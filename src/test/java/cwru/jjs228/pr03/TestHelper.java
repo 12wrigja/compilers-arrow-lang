@@ -4,11 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Scanner;
 
 /**
@@ -33,7 +30,8 @@ public class TestHelper {
 				String computed = fileAnswerScanner.nextLine();
 				assertEquals(computed, provided);
 			}
-
+			providedAnswerScanner.close();
+			fileAnswerScanner.close();
 		} catch (IOException e) {
 			fail("Unable to read from input or output file.");
 		}

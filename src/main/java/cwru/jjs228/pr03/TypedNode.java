@@ -1,10 +1,12 @@
 package cwru.jjs228.pr03;
 
+import java.util.List;
+
 public class TypedNode<T> extends Node<T> {
 
 	
 	public Type type;
-
+	public List<TypedNode<?>> kids;
 	
 	public TypedNode(String label, Type type){
 		super(label);
@@ -27,12 +29,12 @@ public class TypedNode<T> extends Node<T> {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Node) {
-			return this.equals((TypedNode) o);
+			return this.equals((TypedNode<?>) o);
 		}
 		return false;
 	}
 	
-	public boolean equals(TypedNode n) {
+	public boolean equals(TypedNode<?> n) {
 		if (!this.value.equals(n.value)) {
 			return false;
 		}
@@ -62,25 +64,9 @@ public class TypedNode<T> extends Node<T> {
 			}
 		}
 		StringBuilder sb = new StringBuilder();
-		for (Node kid : kids) {
+		for (Node<?> kid : kids) {
 			sb.append(" ");
 			sb.append(kid);
-		}
-		String nodeString = "";
-		if(label != null && value != null && type != null){
-			nodeString = label+","+value + ":" + type.toString();
-		} else if(label != null && value != null){
-			nodeString = label +","+ value;
-		} else if(label != null && type != null){
-			nodeString = label + ":" + type.toString();
-		} else if (label != null){
-			nodeString = label;
-		} else if (value != null){
-			nodeString = value.toString();
-		} else if(type != null){
-			nodeString = type.toString();
-		} else{
-			nodeString = null;
 		}
 		return String.format("(%s%s)", null != value ? value : label, sb);
 	}

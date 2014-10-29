@@ -53,12 +53,12 @@ public class Node<T> {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Node) {
-			return this.equals((Node) o);
+			return this.equals((Node<?>) o);
 		}
 		return false;
 	}
 
-	public boolean equals(Node n) {
+	public boolean equals(Node<?> n) {
 		if (!this.value.equals(n.value)) {
 			return false;
 		}
@@ -77,8 +77,7 @@ public class Node<T> {
 	public int hashCode() {
 		int max = Integer.MAX_VALUE;
 		int hash = (2 * (value.hashCode() + 1)) % max;
-		int i = 3;
-		for (Node n : this.kids) {
+		for (Node<?> n : this.kids) {
 			hash = (hash + ((3 * (n.hashCode() + 1)) % max)) % max;
 		}
 		return hash;
@@ -94,19 +93,9 @@ public class Node<T> {
 			}
 		}
 		StringBuilder sb = new StringBuilder();
-		for (Node kid : kids) {
+		for (Node<?> kid : kids) {
 			sb.append(" ");
 			sb.append(kid);
-		}
-		String nodeString = "";
-		if(label != null && value != null){
-			nodeString = label+":"+value;
-		}else if (label != null){
-			nodeString = label;
-		}else if (value != null){
-			nodeString = value.toString();
-		}else{
-			nodeString = null;
 		}
 		return String.format("(%s%s)", null != value ? value : label, sb);
 	}
