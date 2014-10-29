@@ -26,8 +26,7 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visit(TypedNode node) throws TypeCheckingException,
-			SymbolTableException {
+	public void visit(TypedNode node) throws TypeCheckingException, SymbolTableException {
 		String name = node.label;
 		switch(name){
 		case "Stmts":{
@@ -78,6 +77,10 @@ public class ArrowLangTypeCheckerVisitor {
 			visitShortDeclStmt(node);
 			break;
 		}
+		case "DeclExpr":{
+			visitDeclExpr(node);
+			break;
+		}
 		case "AssignStmt": {
 			visitAssignStmt(node);
 			break;
@@ -106,6 +109,38 @@ public class ArrowLangTypeCheckerVisitor {
 			visitParameter(node);
 			break;
 		}
+		case "UpdateExpr":{
+			visitUpdateExpr(node);
+			break;
+		}
+		case "Params":{
+			visitParameters(node);
+			break;
+		}
+		case "Type":{
+			visitType(node);
+			break;
+		}
+		case "ReturnType":{
+			visitReturnType(node);
+			break;
+		}
+		case "Cast":{
+			visitCast(node);
+			break;
+		}
+		case "Block":{
+			visitBlock(node);
+			break;
+		}
+		case "TypeName":{
+			visitTypeName(node);
+			break;
+		}
+		case "BooleanExpr":{
+			visitBooleanExpr(node);
+			break;
+		}
 		case "+": /* Type-Check as an addition */
 		case "-": /* Type-Check as a subtraction */
 		case "*": /* Type-Check as a multiplication */
@@ -119,7 +154,6 @@ public class ArrowLangTypeCheckerVisitor {
 					"Unable to handle statement with label " + name);
 		}
  		}
-		//visitStmts(node);
 	}
 
 	public void visitIntConstant(TypedNode node) {
@@ -152,8 +186,7 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitStmts(TypedNode node) throws TypeCheckingException,
-			SymbolTableException {
+	public void visitStmts(TypedNode node) throws TypeCheckingException, SymbolTableException{
 		boolean allUnits = true;
 		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
 			visit(kid);
@@ -235,12 +268,12 @@ public class ArrowLangTypeCheckerVisitor {
 
 		// Child 3 should be the return type
 		TypedNode returnNode = children.get(2);
-		visitReturnType(returnNode);
+		visit(returnNode);
 		context.put("Return", returnNode.type);
 
 		// Child 4 should be the function's block.
 		TypedNode block = children.get(3);
-		visitBlock(block);
+		visit(block);
 		block.type = Type.UNIT;
 
 		// Pop context
@@ -276,15 +309,15 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 
 		TypedNode typeNode = children.get(1);
-		visitType(typeNode);
+		visit(typeNode);
 
 		context.put(paramName, typeNode.type);
 		node.type = typeNode.type;
 	}
 
-	public void visitType(TypedNode node) {
+	public void visitType(TypedNode node) throws TypeCheckingException, SymbolTableException {
 		TypedNode typeName = (TypedNode) node.kids.get(0);
-		visitTypeName(typeName);
+		visit(typeName);
 		node.type = typeName.type;
 	}
 
@@ -292,15 +325,15 @@ public class ArrowLangTypeCheckerVisitor {
 		node.type = Type.typeForString(node.value.toString());
 	}
 
-	public void visitReturnType(TypedNode node) {
+	public void visitReturnType(TypedNode node) throws TypeCheckingException, SymbolTableException {
 		TypedNode typeNode = (TypedNode) node.kids.get(0);
-		visitType(typeNode);
+		visit(typeNode);
 		node.type = typeNode.type;
 	}
 
-	public void visitReturn(TypedNode node) throws TypeCheckingException {
+	public void visitReturn(TypedNode node) throws TypeCheckingException, SymbolTableException {
 		TypedNode typeNode = (TypedNode) node.kids.get(0);
-		visitType(typeNode);
+		visit(typeNode);
 		node.type = typeNode.type;
 
 		// Get current return type from context
@@ -580,7 +613,7 @@ public class ArrowLangTypeCheckerVisitor {
 		String callFunctionName = nameNode.value.toString();
 
 		if (Type.isFunctionCast(callFunctionName)) {
-			visitCast(node);
+			visit(node);
 			return;
 		}
 
