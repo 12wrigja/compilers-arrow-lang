@@ -35,6 +35,8 @@ public class TestHelper {
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail("Unable to read from input or output file.");
+		} catch(Exception e){
+			fail("Failed due to an exception: "+e.getLocalizedMessage());
 		}
 	}
 }

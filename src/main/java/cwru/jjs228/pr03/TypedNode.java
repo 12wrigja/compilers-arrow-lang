@@ -1,12 +1,13 @@
 package cwru.jjs228.pr03;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TypedNode<T> extends Node<T> {
 
 	
 	public Type type;
-	public List<TypedNode<?>> kids;
+	public List<TypedNode<?>> kids = new ArrayList<TypedNode<?>>();
 	
 	public TypedNode(String label, Type type){
 		super(label);
@@ -34,6 +35,11 @@ public class TypedNode<T> extends Node<T> {
 		return false;
 	}
 	
+	public TypedNode<T> addkid(TypedNode<?> n) {
+		this.kids.add(n);
+		return this;
+	}
+	
 	public boolean equals(TypedNode<?> n) {
 		if (!this.value.equals(n.value)) {
 			return false;
@@ -56,7 +62,7 @@ public class TypedNode<T> extends Node<T> {
 	public String toString() {
 		if (kids.size() == 0) {
 			if(value != null && type != null){
-				return "("+label+","+value.toString()+type.toString()+")";
+				return "("+label+","+value.toString()+")";
 			} else if(value != null){
 				return "("+label+","+value.toString()+")";
 			} else{

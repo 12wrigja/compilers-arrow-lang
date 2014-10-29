@@ -40,7 +40,9 @@ class Main {
 			false, "stop at assembly generation");
 	private final static Option visualizeASTOption = new Option("V",
 			"visualize", false, "prints the dot format of the AST to ST. Out.");
-
+	private final static Option debugOption = new Option("D","Debug option. DO NOT ENABLE."); 
+	
+	
 	private final static Options options = new Options();
 
 	/**
@@ -49,8 +51,10 @@ class Main {
 	 * @param argv
 	 *            arguments for the compiler
 	 * @throws IOException
+	 * @throws TypeCheckingException 
+	 * @throws SymbolTableException 
 	 */
-	public static void main(String[] argv) throws IOException {
+	public static void main(String[] argv) throws IOException, TypeCheckingException, SymbolTableException {
 
 		options.addOption(helpOpt);
 		options.addOption(outputOpt);
@@ -60,7 +64,8 @@ class Main {
 		options.addOption(intermediateJSONOption);
 		options.addOption(assemblyOption);
 		options.addOption(visualizeASTOption);
-
+		options.addOption(debugOption);
+		
 		GnuParser gnuparser = new GnuParser();
 		CommandLine line = null;
 		try {
@@ -103,7 +108,11 @@ class Main {
 			ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
 			ast = visitor.visit(tree);
 		} catch (Exception e) {
-			Helper.endExecutionWithError(e.getMessage());
+			if(!line.hasOption(debugOption.getOpt())){
+				Helper.endExecutionWithError(e.getMessage());
+			}else{
+				throw e;
+			}
 		}
 		
 
@@ -135,9 +144,17 @@ class Main {
 		try {
 			typeVisitor.visit(typedAst);
 		} catch (TypeCheckingException e) {
-			Helper.endExecutionWithError(e.getMessage());
+			if(!line.hasOption(debugOption.getOpt())){
+				Helper.endExecutionWithError(e.getMessage());
+			}else{
+				throw e;
+			}
 		} catch (SymbolTableException e) {
-			Helper.endExecutionWithError(e.getMessage());
+			if(!line.hasOption(debugOption.getOpt())){
+				Helper.endExecutionWithError(e.getMessage());
+			}else{
+				throw e;
+			}
 		}
 		
 		if(line.hasOption(typedASTOption.getLongOpt())) {
