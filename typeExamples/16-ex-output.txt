@@ -1,0 +1,17 @@
+2:Stmts:unit
+2:ShortDecl:unit
+0:Name,x:int32
+0:Int,0:int32
+3:If:unit
+1:BooleanExpr:boolean
+1:Not:boolean
+0:Boolean,true:boolean
+1:Block:unit
+2:AssignStmt:unit
+0:Name,x:int32
+0:Int,1:int32
+1:ElseIf:unit
+1:Block:unit
+2:AssignStmt:unit
+0:Name,x:int32
+0:Int,2:int32

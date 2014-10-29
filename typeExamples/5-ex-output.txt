@@ -1,0 +1,15 @@
+1:Stmts:unit
+2:ShortDecl:unit
+0:Name,x:int32
+2:+:int32
+2:*:int32
+0:Int,1:int32
+0:Int,2:int32
+2:/:int32
+2:*:int32
+0:Int,3:int32
+2:+:int32
+1:Negate:int32
+0:Int,1:int32
+0:Int,7:int32
+0:Int,2:int32

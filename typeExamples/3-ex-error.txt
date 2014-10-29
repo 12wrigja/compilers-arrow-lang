@@ -1,0 +1,5 @@
+> parsing 3-ex-input.txt
+> type checking
+["redeclared 2:ShortDecl
+0:Name,x
+0:Int,2:int32", "symbol, y, undeclared", "symbol, y, undeclared", "symbol, z, undeclared", "symbol, z, undeclared", "symbol, c, undeclared", "symbol, y, undeclared", "symbol, z, undeclared", "symbol, z, undeclared", "symbol, y, undeclared"]

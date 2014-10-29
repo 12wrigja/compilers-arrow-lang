@@ -1,0 +1,2 @@
+> parsing 17-ex-input.txt
+> type checking

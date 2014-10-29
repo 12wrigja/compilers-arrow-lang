@@ -1,0 +1,17 @@
+1:Stmts:unit
+3:Decl:unit
+0:Name,x:float32
+1:Type:float32
+0:TypeName,float32:float32
+2:+:float32
+2:*:float32
+0:Float,1:float32
+0:Float,2:float32
+2:/:float32
+2:*:float32
+0:Float,3:float32
+2:+:float32
+1:Negate:float32
+0:Float,1:float32
+0:Float,7:float32
+0:Float,2:float32
