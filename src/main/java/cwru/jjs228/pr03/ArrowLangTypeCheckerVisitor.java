@@ -301,11 +301,38 @@ public class ArrowLangTypeCheckerVisitor {
 	}
 
 	public void visitIfElseStmt(TypedNode node) {
-		throw new UnsupportedOperationException("IfElse not implemented yet.");
+		throw new RuntimeException("IfElse not implemented yet.");
 	}
 
-	public void visitForStmt(TypedNode node) {
-		throw new UnsupportedOperationException("For not implemented yet.");
+	public void visitForStmt(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		List<TypedNode> children = node.kids;
+
+		// Push a new context so that the variables in the declaration statement
+		// are visible to the rest of the block.
+		context.push();
+
+		TypedNode declExpr = children.get(0);
+		TypedNode booleanExpr = children.get(1);
+		TypedNode updateExpr = children.get(2);
+		TypedNode block = children.get(3);
+
+		visit(declExpr);
+		visit(booleanExpr);
+		visit(updateExpr);
+		visit(block);
+		if (declExpr.type != Type.UNIT) {
+			throw new TypeCheckingException("Declaration Expression has a return type.");
+		} else if (booleanExpr.type != Type.BOOLEAN) {
+			throw new TypeCheckingException("Loop condition does not evaluate to a boolean.");
+		} else if (updateExpr.type != Type.UNIT) {
+			throw new TypeCheckingException("Update Expression has a return type.");
+		} else if (block.type != Type.UNIT) {
+			throw new TypeCheckingException("Block has a return type.");
+		} else {
+			node.type = Type.UNIT;
+		}
+		context.pop();
 	}
 
 	public void visitExpression(TypedNode node) throws TypeCheckingException,
@@ -494,7 +521,7 @@ public class ArrowLangTypeCheckerVisitor {
 	}
 
 	public void visitCast(TypedNode node) {
-		throw new UnsupportedOperationException();
+		throw new RuntimeException("Method not implemented yet!");
 	}
 
 	public void visitArithOp(TypedNode node) throws TypeCheckingException,
