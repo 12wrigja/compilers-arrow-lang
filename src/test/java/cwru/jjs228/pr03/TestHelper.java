@@ -33,6 +33,7 @@ public class TestHelper {
 			providedAnswerScanner.close();
 			fileAnswerScanner.close();
 		} catch (IOException e) {
+			e.printStackTrace();
 			fail("Unable to read from input or output file.");
 		}
 	}
