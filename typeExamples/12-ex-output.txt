@@ -1,0 +1,6 @@
+1:Stmts:unit
+2:ShortDecl:unit
+0:Name,x:float32
+2:+:float32
+0:Float,1:float32
+0:Float,1:float32

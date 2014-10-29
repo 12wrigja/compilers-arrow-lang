@@ -1,0 +1,5 @@
+func f(i int32, j int32) int32 {
+    return 5*j*j + - 3*j + 2*j*i + i + 7
+
+}
+print_int32(f(2, 3))

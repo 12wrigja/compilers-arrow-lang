@@ -1,0 +1,14 @@
+> parsing 9-ex-input.txt
+> type checking
+["declared type, int32 does not agree with expression, 2:+:float32
+2:*:float32
+0:Float,1:float32
+0:Float,2:float32
+2:/:float32
+2:*:float32
+0:Float,3:float32
+2:+:float32
+1:Negate:float32
+0:Float,1:float32
+0:Float,7:float32
+0:Float,2:float32."]

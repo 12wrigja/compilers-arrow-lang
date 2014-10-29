@@ -1,0 +1,2 @@
+> parsing 8-ex-input.txt
+> type checking
