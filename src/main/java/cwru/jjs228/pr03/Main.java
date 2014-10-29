@@ -7,14 +7,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Scanner;
-
-import cwru.jjs228.pr03.Helper;
-import cwru.jjs228.pr03.SymbolTable.SymbolTableException;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
@@ -22,6 +17,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import cwru.jjs228.pr03.SymbolTable.SymbolTableException;
 
 class Main {
 
@@ -100,7 +97,7 @@ class Main {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		ArrowLangParser parser = new ArrowLangParser(tokens);
 		parser.addErrorListener(new ExceptionErrorListener());
-		Node ast = null;
+		Node<?> ast = null;
 		try {
 			ParseTree tree = parser.start();
 			ArrowLangASTVisitor visitor = new ArrowLangASTVisitor();
@@ -133,7 +130,7 @@ class Main {
 			return;
 		}
 		
-		TypedNode typedAst = new TypedNode(ast);
+		TypedNode<?> typedAst = new TypedNode<>(ast);
 		ArrowLangTypeCheckerVisitor typeVisitor = new ArrowLangTypeCheckerVisitor();
 		try {
 			typeVisitor.visit(typedAst);
@@ -162,46 +159,34 @@ class Main {
 		System.exit(1);
 	}
 
-	private static String getNameForTokenNumber(ArrowLangLexer lexer, int number) {
-		return lexer.ruleNames[number - 1];
-	}
-
-	private static void printAllTokens(ArrowLangLexer lexer) {
-		List<? extends Token> toks = lexer.getAllTokens();
-		for (Token t : toks) {
-			if (t.getChannel() == 0) {
-				System.out.println(getNameForTokenNumber(lexer, t.getType())
-						+ " " + t.getText());
-			}
-		}
-	}
-
-	private static String preOrderTraverse(Node node, String output) {
+	private static String preOrderTraverse(Node<?> node, String output) {
 		if (null == node) {
 			return output;
 		}
 		output = output.concat(node.kids.size() + ":" + node.label
 				+ ((null != node.value) ? "," + node.value + "\n" : "\n"));
-		for (Node kid : ((Iterable<Node>) node.kids)) {
+		List<Node<?>> kids = node.kids;
+		for (Node<?> kid : kids) {
 			output = preOrderTraverse(kid, output);
 		}
 		return output;
 	}
 	
-	private static String preOrderTraverseType(TypedNode node, String output) {
+	private static String preOrderTraverseType(TypedNode<?> node, String output) {
 		if (null == node) {
 			return output;
 		}
 		output = output.concat(node.kids.size() + ":" + node.label
 				+ ((null != node.value) ? "," + node.value : ""))
 				+ ((null != node.type) ? ":" + node.type.toString() + "\n": "\n");
-		for (TypedNode kid : ((Iterable<TypedNode>) node.kids)) {
+		List<TypedNode<?>> kids = node.kids;
+		for (TypedNode<?> kid : kids) {
 			output = preOrderTraverseType(kid, output);
 		}
 		return output;
 	}
 
-	private static String dotFormat(Node node) {
+	private static String dotFormat(Node<?> node) {
 		// Name, Label
 		String nodeFormat = "%s [shape=rect, label=\"%s\"];";
 		String leafFormat = "%s [shape=rect, label=\"%s\", style=\"filled\" fillcolor=\"#dddddd\"];";
@@ -219,7 +204,7 @@ class Main {
 		while (!queue.isEmpty()) {
 			Object[] item = queue.poll();
 			int count = (int) item[0];
-			Node current = (Node) item[1];
+			Node<?> current = (Node<?>) item[1];
 			String name = "n" + count;
 			String label = (current.value != null) ? current.label + ","
 					+ current.value.toString() : current.label;
@@ -227,7 +212,8 @@ class Main {
 				nodes.add(String.format(leafFormat, name, label));
 			} else {
 				nodes.add(String.format(nodeFormat, name, label));
-				for (Node kid : ((Iterable<Node>) current.kids)) {
+				List<Node<?>> kids = current.kids;
+				for (Node<?> kid : kids) {
 					edges.add(String.format(edgeFormat, name, "n" + i));
 					queue.add(new Object[] { i, kid });
 					i += 1;
@@ -239,7 +225,7 @@ class Main {
 				+ "\n}\n";
 	}
 
-	private static String join(List objs, String joinTxt) {
+	private static String join(List<?> objs, String joinTxt) {
 		boolean first = true;
 		StringBuffer buf = new StringBuffer();
 		for (Object obj : objs) {
