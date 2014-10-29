@@ -59,4 +59,7 @@ public class Type {
 		return false;
 	}
 	
+	public static boolean isFunctionCast(String functionName){
+		return typeForString(functionName)!=null;
+	}
 }
