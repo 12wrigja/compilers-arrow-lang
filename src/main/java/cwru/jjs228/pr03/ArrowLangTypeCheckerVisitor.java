@@ -125,9 +125,6 @@ public class ArrowLangTypeCheckerVisitor {
 		// Return Type
 		// Block
 
-		// Push a new context for the scope of function
-		context.push();
-
 		List<TypedNode> children = node.kids;
 
 		// Kid 0 should be the name. Check and see if it is undefined.
@@ -137,6 +134,9 @@ public class ArrowLangTypeCheckerVisitor {
 			throw new TypeCheckingException("Variable " + variableName
 					+ "is already defined.");
 		}
+
+		// Push a new context for the scope of function
+		context.push();
 
 		// Child 2 should be the parameters.
 		TypedNode parameters = children.get(1);
@@ -152,11 +152,11 @@ public class ArrowLangTypeCheckerVisitor {
 		visitBlock(block);
 		block.type = Type.UNIT;
 
-		nameNode.type = new Type("fn" + parameters.type.name + "->"
-				+ returnNode.type.name);
-
 		// Pop context
 		context.pop();
+
+		nameNode.type = new Type("fn" + parameters.type.name + "->"
+				+ returnNode.type.name);
 
 		// Set the type of the entire short declaration statement to unit.
 		node.type = Type.UNIT;
@@ -227,7 +227,7 @@ public class ArrowLangTypeCheckerVisitor {
 	}
 
 	public void visitDeclStmt(TypedNode node) {
-
+		throw new UnsupportedOperationException("DeclStmt not implemented yet.");
 	}
 
 	public void visitShortDeclStmt(TypedNode node)
@@ -301,14 +301,15 @@ public class ArrowLangTypeCheckerVisitor {
 	}
 
 	public void visitIfElseStmt(TypedNode node) {
-
+		throw new UnsupportedOperationException("IfElse not implemented yet.");
 	}
 
 	public void visitForStmt(TypedNode node) {
-
+		throw new UnsupportedOperationException("For not implemented yet.");
 	}
 
-	public void visitExpression(TypedNode node) throws TypeCheckingException {
+	public void visitExpression(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
 		switch (node.label) {
 		case "+": /* Type-Check as an addition */
 		case "-": /* Type-Check as a subtraction */
@@ -349,12 +350,30 @@ public class ArrowLangTypeCheckerVisitor {
 		context.pop();
 	}
 
-	public void visitDeclExpr(TypedNode node) {
-
+	public void visitDeclExpr(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// DeclExpr should have a single child with a unit type.
+		TypedNode child = (TypedNode) node.kids.get(0);
+		visit(child);
+		if (child.type != Type.UNIT) {
+			throw new TypeCheckingException(
+					"Declaration expression in for loop is invalid.");
+		} else {
+			node.type = Type.UNIT;
+		}
 	}
 
-	public void visitUpdateExpr(TypedNode node) {
-
+	public void visitUpdateExpr(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// UpdateExpr should have a single child with a unit type.
+		TypedNode child = (TypedNode) node.kids.get(0);
+		visit(child);
+		if (child.type != Type.UNIT) {
+			throw new TypeCheckingException(
+					"Update expression in for loop is invalid.");
+		} else {
+			node.type = Type.UNIT;
+		}
 	}
 
 	public void visitAnd(TypedNode node) throws TypeCheckingException,
@@ -365,8 +384,7 @@ public class ArrowLangTypeCheckerVisitor {
 		TypedNode operand2 = children.get(1);
 		visit(operand1);
 		visit(operand2);
-		if (operand1.type != Type.BOOLEAN
-				|| operand2.type != Type.BOOLEAN) {
+		if (operand1.type != Type.BOOLEAN || operand2.type != Type.BOOLEAN) {
 			throw new TypeCheckingException(
 					"An operand for AND is not a boolean");
 		} else {
@@ -382,8 +400,7 @@ public class ArrowLangTypeCheckerVisitor {
 		TypedNode operand2 = children.get(1);
 		visit(operand1);
 		visit(operand2);
-		if (operand1.type != Type.BOOLEAN
-				|| operand2.type != Type.BOOLEAN) {
+		if (operand1.type != Type.BOOLEAN || operand2.type != Type.BOOLEAN) {
 			throw new TypeCheckingException(
 					"An operand for OR is not a boolean");
 		} else {
@@ -405,7 +422,8 @@ public class ArrowLangTypeCheckerVisitor {
 		}
 	}
 
-	public void visitCmpOp(TypedNode node) throws TypeCheckingException, SymbolTableException {
+	public void visitCmpOp(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
 		// Comparisons have two children, must have matching types from set
 		// int32, uint32, int8, unit8
 		List<TypedNode> children = node.kids;
@@ -413,36 +431,116 @@ public class ArrowLangTypeCheckerVisitor {
 		TypedNode operand2 = children.get(1);
 		visit(operand1);
 		visit(operand2);
-		boolean operand1IsNum = Type.isOneOfType(operand1.type, new Type[]{Type.Int32,Type.Int8,Type.UInt32,Type.UInt8});
-		boolean operand2IsNum = Type.isOneOfType(operand2.type, new Type[]{Type.Int32,Type.Int8,Type.UInt32,Type.UInt8});
-		
+		boolean operand1IsNum = Type.isOneOfType(operand1.type, new Type[] {
+				Type.Int32, Type.Int8, Type.UInt32, Type.UInt8 });
+		boolean operand2IsNum = Type.isOneOfType(operand2.type, new Type[] {
+				Type.Int32, Type.Int8, Type.UInt32, Type.UInt8 });
+
 		if (operand1.type != operand2.type) {
 			throw new TypeCheckingException(
-					"Comparison Operands do not have matching types: "+operand1.type+" not equal "+operand2.type);
-		} else if (!operand1IsNum){ 
+					"Comparison Operands do not have matching types: "
+							+ operand1.type + " not equal " + operand2.type);
+		} else if (!operand1IsNum) {
 			throw new TypeCheckingException(
-					"Operand 1 is not a valid comparison type. Recieved: "+operand1.type);
-		}else if (!operand2IsNum){
+					"Operand 1 is not a valid comparison type. Recieved: "
+							+ operand1.type);
+		} else if (!operand2IsNum) {
 			throw new TypeCheckingException(
-					"Operand 2 is not a valid comparison type. Recieved: "+operand2.type);
-		}else{
+					"Operand 2 is not a valid comparison type. Recieved: "
+							+ operand2.type);
+		} else {
 			node.type = Type.BOOLEAN;
 		}
 	}
 
-	public void visitCall(TypedNode node) {
-		
+	public void visitCall(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// Get name of function, see if it exists.
+		// Child 1 is the function name.
+		List<TypedNode> children = node.kids;
+		TypedNode nameNode = children.get(0);
+		String callFunctionName = nameNode.value.toString();
+
+		if (Type.isFunctionCast(callFunctionName)) {
+			visitCast(node);
+			return;
+		}
+
+		// Lookup type value of the function to see if it exists and find out
+		// what parameters it requires
+		if (context.isDefined(callFunctionName)) {
+			Type functionType = context.get(callFunctionName);
+
+			// Compute provided parameter types compare against function types
+			// Child 2 is the parameters
+			TypedNode paramsNode = children.get(1);
+			visit(paramsNode);
+			String serializedParameters = paramsNode.type.name;
+			// If the function's type name contains the parameters string, then
+			// the parameter types match
+			if (functionType.name.contains(serializedParameters)) {
+				Type returnType = Type.typeForString(callFunctionName
+						.split("->")[1]);
+				node.type = returnType;
+			} else {
+				throw new TypeCheckingException(
+						"Mismatched parameter types for function "
+								+ callFunctionName);
+			}
+		} else {
+			throw new TypeCheckingException("Call to undefined function "
+					+ callFunctionName);
+		}
 	}
 
 	public void visitCast(TypedNode node) {
-
+		throw new UnsupportedOperationException();
 	}
 
-	public void visitArithOp(TypedNode node) {
+	public void visitArithOp(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// Arithmetic Operators have two children, must have matching types from
+		// set
+		// int32, uint32, int8, unit8
+		List<TypedNode> children = node.kids;
+		TypedNode operand1 = children.get(0);
+		TypedNode operand2 = children.get(1);
+		visit(operand1);
+		visit(operand2);
+		boolean operand1IsNum = Type.isOneOfType(operand1.type, new Type[] {
+				Type.Int32, Type.Int8, Type.UInt32, Type.UInt8 });
+		boolean operand2IsNum = Type.isOneOfType(operand2.type, new Type[] {
+				Type.Int32, Type.Int8, Type.UInt32, Type.UInt8 });
 
+		if (operand1.type != operand2.type) {
+			throw new TypeCheckingException(
+					"Arithmetic Operator Operands do not have matching types: "
+							+ operand1.type + " not equal " + operand2.type);
+		} else if (!operand1IsNum) {
+			throw new TypeCheckingException(
+					"Operand 1 is not a valid comparison type. Recieved: "
+							+ operand1.type);
+		} else if (!operand2IsNum) {
+			throw new TypeCheckingException(
+					"Operand 2 is not a valid comparison type. Recieved: "
+							+ operand2.type);
+		} else {
+			node.type = operand1.type;
+		}
 	}
 
-	public void visitNegateArith(TypedNode node) {
-
+	public void visitNegateArith(TypedNode node) throws TypeCheckingException,
+			SymbolTableException {
+		// And has two children, have to be boolean
+		List<TypedNode> children = node.kids;
+		TypedNode operand1 = children.get(0);
+		visit(operand1);
+		if (Type.isOneOfType(operand1.type, new Type[] { Type.Int32, Type.Int8,
+				Type.UInt32, Type.UInt8 })) {
+			throw new TypeCheckingException(
+					"The operand for arithmetic NEGATE is not a number!");
+		} else {
+			node.type = operand1.type;
+		}
 	}
 }
