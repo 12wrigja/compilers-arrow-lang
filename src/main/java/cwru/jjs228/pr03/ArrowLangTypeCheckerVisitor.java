@@ -151,13 +151,39 @@ public class ArrowLangTypeCheckerVisitor {
 
 		// Set the type of the name node to the type of the expression
 		nameNode.type = expressionNode.type;
-
+		
 		// Set the type of the entire short declaration statement to unit.
 		node.type = SizedType.UNIT;
 	}
 
-	public void visitAssignStmt(TypedNode node) {
+	public void visitAssignStmt(TypedNode node) throws TypeCheckingException, SymbolTableException {
+		List<TypedNode> children = node.kids;
 
+		// Kid 0 should be the name. Check and see if it is undefined.
+		TypedNode nameNode = children.get(0);
+		String variableName = nameNode.value.toString();
+		if (!context.isDefined(variableName)) {
+			throw new TypeCheckingException("Variable " + variableName
+					+ "is undefined.");
+		}
+
+		// Variable is undefined at this point.
+		// Compute variable type.
+		TypedNode expressionNode = children.get(1);
+		visitExpression(expressionNode);
+
+		// Retrieve the variable's type and see if the type is incompatible with the expression's type.
+		Type variableType = context.get(variableName);
+		
+		if(variableType != expressionNode.type){
+			throw new TypeCheckingException("Type mismatch: cannot convert from "+expressionNode.type+" to "+variableType);
+		}
+		
+		// Set the type of the name node to the type of the expression
+		nameNode.type = expressionNode.type;
+		
+		// Set the type of the entire short declaration statement to unit.
+		node.type = SizedType.UNIT;
 	}
 
 	public void visitIfElseStmt(TypedNode node) {
